@@ -1,0 +1,23 @@
+tunnel: tokusho
+credentials-file: /home/shodai/.cloudflared/tokusho.json
+
+ingress:
+  # ポートフォリオ（メインサイト）
+  - hostname: tokusho.dev
+    service: http://localhost:80
+  - hostname: www.tokusho.dev
+    service: http://localhost:80
+
+  # SmartLock ダッシュボード
+  - hostname: home.tokusho.dev
+    service: http://localhost:8000
+
+  # ファイルサーバー（Nextcloud）
+  - hostname: files.tokusho.dev
+    service: http://localhost:8080
+
+  # 開発・テスト用
+  - hostname: dev.tokusho.dev
+    service: http://localhost:3000
+
+  - service: http_status:404
