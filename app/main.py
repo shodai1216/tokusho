@@ -18,4 +18,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def serve_ui():
-    return FileResponse("static/index.html")
+    path = "static/index.html"
+    if not os.path.exists(path):
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"status": "ok"})
+    return FileResponse(path)
