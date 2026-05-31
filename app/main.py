@@ -23,3 +23,7 @@ def serve_ui():
         from fastapi.responses import JSONResponse
         return JSONResponse({"status": "ok"})
     return FileResponse(path)
+
+@app.get("/ceg")
+def serve_ceg():
+    return FileResponse("static/ceg/index.html")
