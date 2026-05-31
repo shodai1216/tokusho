@@ -27,3 +27,11 @@ def serve_ui():
 @app.get("/ceg")
 def serve_ceg():
     return FileResponse("static/ceg/index.html")
+
+@app.get("/ceg/nene")
+def serve_ceg_nene():
+    return FileResponse("static/ceg/nene/index.html")
+
+@app.get("/ceg/naran")
+def serve_ceg_naran():
+    return FileResponse("static/ceg/naran/index.html")
