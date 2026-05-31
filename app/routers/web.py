@@ -124,3 +124,91 @@ def lock():
             cur.execute("INSERT INTO commands (command,operator) VALUES('lock','web')")
             cur.execute("INSERT INTO logs (state) VALUES('lock_requested')")
     return {"success":True}
+
+def _require_admin(token: str):
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM sessions WHERE token=%s", (token,))
+            s = cur.fetchone()
+    if not s or is_expired(s["expires_at"]) or s["user_id"] != "admin":
+        return None
+    return s
+
+# ── ユーザー一覧 ──────────────────────────────────
+@router.get("/admin/users")
+def list_users(token: str):
+    if not _require_admin(token):
+        return {"success": False, "message": "管理者権限が必要です"}
+    import datetime as dt_mod
+    JST = dt_mod.timezone(dt_mod.timedelta(hours=9))
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM users ORDER BY created_at DESC")
+            rows = cur.fetchall()
+    result = []
+    for r in rows:
+        exp = r["expires_at"]
+        exp_str = exp.astimezone(JST).strftime("%Y/%m/%d %H:%M") if exp else "無制限"
+        result.append({
+            "id":          r["id"],
+            "displayName": r["display_name"] or r["id"],
+            "expiresAt":   exp_str,
+            "maxUses":     r["max_uses"],
+            "useCount":    r["use_count"],
+            "expired":     is_expired(exp) if exp else False,
+        })
+    return {"success": True, "users": result}
+
+# ── ユーザー削除 ──────────────────────────────────
+class AdminUserRequest(BaseModel):
+    token: str
+    userId: str
+
+@router.post("/admin/users/delete")
+def delete_user(body: AdminUserRequest):
+    if not _require_admin(body.token):
+        return {"success": False, "message": "管理者権限が必要です"}
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM sessions WHERE user_id=%s", (body.userId,))
+            cur.execute("DELETE FROM users WHERE id=%s", (body.userId,))
+    return {"success": True}
+
+# ── セッション一覧 ────────────────────────────────
+@router.get("/admin/sessions")
+def list_sessions(token: str):
+    if not _require_admin(token):
+        return {"success": False, "message": "管理者権限が必要です"}
+    import datetime as dt_mod
+    JST = dt_mod.timezone(dt_mod.timedelta(hours=9))
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM sessions ORDER BY expires_at DESC")
+            rows = cur.fetchall()
+    result = []
+    for r in rows:
+        exp = r["expires_at"]
+        exp_str = exp.astimezone(JST).strftime("%Y/%m/%d %H:%M") if exp else "-"
+        result.append({
+            "token":       r["token"][:8] + "...",
+            "fullToken":   r["token"],
+            "userId":      r["user_id"],
+            "displayName": r["display_name"] or r["user_id"],
+            "expiresAt":   exp_str,
+            "expired":     is_expired(exp),
+        })
+    return {"success": True, "sessions": result}
+
+# ── セッション削除 ────────────────────────────────
+class AdminSessionRequest(BaseModel):
+    token: str
+    targetToken: str
+
+@router.post("/admin/sessions/delete")
+def delete_session(body: AdminSessionRequest):
+    if not _require_admin(body.token):
+        return {"success": False, "message": "管理者権限が必要です"}
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM sessions WHERE token=%s", (body.targetToken,))
+    return {"success": True}
