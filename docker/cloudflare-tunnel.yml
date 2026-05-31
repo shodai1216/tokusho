@@ -1,23 +1,33 @@
-tunnel: tokusho
-credentials-file: /home/shodai/.cloudflared/tokusho.json
+# Cloudflare Tunnel 設定の【参考コピー】
+# ※ サーバー上で実際に使われるのは /etc/cloudflared/config.yml（systemdが読む）。
+#   このファイルを編集してもサーバーには反映されない。実態の控えとして管理する。
+#   反映時は: sudo cp ... /etc/cloudflared/config.yml && sudo systemctl restart cloudflared
+
+tunnel: shodaihome
+credentials-file: /etc/cloudflared/37d1d048-1cf1-4943-ae3c-e0850ade592b.json
 
 ingress:
-  # ポートフォリオ（メインサイト）
-  - hostname: tokusho.dev
+  # apex（トップページ "Shodai'home" ランディング）
+  - hostname: tokusho.org
     service: http://localhost:80
-  - hostname: www.tokusho.dev
+  - hostname: www.tokusho.org
     service: http://localhost:80
 
-  # SmartLock ダッシュボード
-  - hostname: home.tokusho.dev
-    service: http://localhost:8000
+  # ポートフォリオ
+  - hostname: portfolio.tokusho.org
+    service: http://localhost:80
 
-  # ファイルサーバー（Nextcloud）
-  - hostname: files.tokusho.dev
-    service: http://localhost:8080
+  # CEG 飲み部メンバー紹介
+  - hostname: ceg.tokusho.org
+    service: http://localhost:80
 
-  # 開発・テスト用
-  - hostname: dev.tokusho.dev
-    service: http://localhost:3000
+  # SmartLock ダッシュボード（nginx :80 が :8000 へプロキシ）
+  - hostname: home.tokusho.org
+    service: http://localhost:80
 
+  # SSH（URL経由接続）
+  - hostname: ssh.tokusho.org
+    service: ssh://localhost:22
+
+  # キャッチオール（必ず最後。これより下の hostname は無視される）
   - service: http_status:404
