@@ -16,6 +16,7 @@ Cmnd_Alias TOKUSHO_SYSTEMCTL = \
     /usr/bin/systemctl start nginx, /usr/bin/systemctl stop nginx, /usr/bin/systemctl restart nginx, /usr/bin/systemctl enable nginx, /usr/bin/systemctl disable nginx, \
     /usr/bin/systemctl start cloudflared, /usr/bin/systemctl stop cloudflared, /usr/bin/systemctl restart cloudflared, /usr/bin/systemctl enable cloudflared, /usr/bin/systemctl disable cloudflared, \
     /usr/bin/systemctl start ceg-comments, /usr/bin/systemctl stop ceg-comments, /usr/bin/systemctl restart ceg-comments, /usr/bin/systemctl enable ceg-comments, /usr/bin/systemctl disable ceg-comments, \
+    /usr/bin/systemctl start smartlock, /usr/bin/systemctl stop smartlock, /usr/bin/systemctl restart smartlock, /usr/bin/systemctl enable smartlock, /usr/bin/systemctl disable smartlock, \
     /usr/bin/systemctl start tokusho-admin, /usr/bin/systemctl restart tokusho-admin, /usr/bin/systemctl enable tokusho-admin
 
 # nginx の設定反映（テスト & リロード）
@@ -32,6 +33,7 @@ Cmnd_Alias TOKUSHO_JOURNAL = \
     /usr/bin/journalctl -u nginx *, \
     /usr/bin/journalctl -u cloudflared *, \
     /usr/bin/journalctl -u ceg-comments *, \
+    /usr/bin/journalctl -u smartlock *, \
     /usr/bin/journalctl -u tokusho-admin *
 
 shodai ALL=(root) NOPASSWD: TOKUSHO_SYSTEMCTL, TOKUSHO_NGINX, TOKUSHO_POWER, TOKUSHO_JOURNAL

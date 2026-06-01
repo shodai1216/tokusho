@@ -24,7 +24,7 @@ ALLOWED = {
     "cloudflared": "Cloudflare Tunnel",
     "ceg-comments": "CEG コメントAPI",
     "tokusho-admin": "管理API（自身）",
-    # "smartlock-api": "SmartLock API",  # 実際のユニット名に合わせて有効化
+    "smartlock": "SmartLock API",
 }
 ACTIONS = {"start", "stop", "restart", "enable", "disable"}
 # サービスごとに禁止する操作（自分を止めると復帰不能になるため）
