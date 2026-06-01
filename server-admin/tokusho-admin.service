@@ -9,6 +9,9 @@ After=network.target
 [Service]
 User=shodai
 WorkingDirectory=/home/shodai/tokusho/server-admin
+# 環境変数ファイル（なくてもエラーにしない）
+# 設定例: ~/.tokusho-admin.env に DISCORD_WEBHOOK=... / GITHUB_WEBHOOK_SECRET=... を書く
+EnvironmentFile=-/home/shodai/.tokusho-admin.env
 ExecStart=/home/shodai/tokusho/server-admin/venv/bin/uvicorn app:app --host 127.0.0.1 --port 8200
 Restart=on-failure
 
