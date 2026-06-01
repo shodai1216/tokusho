@@ -1,5 +1,5 @@
 # /etc/sudoers.d/tokusho-admin
-# 管理API（shodai ユーザーで起動）が「許可サービスの restart とログ閲覧」だけを
+# 管理API（shodai ユーザーで起動）が「許可サービスの操作・ログ閲覧・nginx反映・再起動」だけを
 # パスワードなしで実行できるようにする。ブランケットな sudo は与えない。
 #
 # 反映:
@@ -7,18 +7,31 @@
 #   sudo chmod 0440 /etc/sudoers.d/tokusho-admin
 #   sudo visudo -cf /etc/sudoers.d/tokusho-admin     # 構文チェック
 #
-# ※ systemctl / journalctl の絶対パスは環境で異なることがある。
-#   `command -v systemctl` / `command -v journalctl` で確認して合わせること。
-#   サービスを追加したら、ここの restart 行と journalctl 行も両方足す。
+# ※ systemctl/journalctl は /usr/bin、nginx は /usr/sbin を想定。環境が違えば
+#   `command -v systemctl journalctl nginx` で確認して合わせること。
+#   サービスを追加したら、対応する systemctl 行と journalctl 行を足す。
 
-Cmnd_Alias TOKUSHO_SVC = \
-    /usr/bin/systemctl restart nginx, \
-    /usr/bin/systemctl restart cloudflared, \
-    /usr/bin/systemctl restart ceg-comments, \
-    /usr/bin/systemctl restart tokusho-admin, \
+# サービス操作（start/stop/restart/enable/disable）
+Cmnd_Alias TOKUSHO_SYSTEMCTL = \
+    /usr/bin/systemctl start nginx, /usr/bin/systemctl stop nginx, /usr/bin/systemctl restart nginx, /usr/bin/systemctl enable nginx, /usr/bin/systemctl disable nginx, \
+    /usr/bin/systemctl start cloudflared, /usr/bin/systemctl stop cloudflared, /usr/bin/systemctl restart cloudflared, /usr/bin/systemctl enable cloudflared, /usr/bin/systemctl disable cloudflared, \
+    /usr/bin/systemctl start ceg-comments, /usr/bin/systemctl stop ceg-comments, /usr/bin/systemctl restart ceg-comments, /usr/bin/systemctl enable ceg-comments, /usr/bin/systemctl disable ceg-comments, \
+    /usr/bin/systemctl start tokusho-admin, /usr/bin/systemctl restart tokusho-admin, /usr/bin/systemctl enable tokusho-admin
+
+# nginx の設定反映（テスト & リロード）
+Cmnd_Alias TOKUSHO_NGINX = \
+    /usr/sbin/nginx -t, \
+    /usr/bin/systemctl reload nginx
+
+# サーバー再起動
+Cmnd_Alias TOKUSHO_POWER = \
+    /usr/bin/systemctl reboot
+
+# ログ閲覧
+Cmnd_Alias TOKUSHO_JOURNAL = \
     /usr/bin/journalctl -u nginx *, \
     /usr/bin/journalctl -u cloudflared *, \
     /usr/bin/journalctl -u ceg-comments *, \
     /usr/bin/journalctl -u tokusho-admin *
 
-shodai ALL=(root) NOPASSWD: TOKUSHO_SVC
+shodai ALL=(root) NOPASSWD: TOKUSHO_SYSTEMCTL, TOKUSHO_NGINX, TOKUSHO_POWER, TOKUSHO_JOURNAL

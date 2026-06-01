@@ -72,19 +72,44 @@
     .svc-table td { padding: 10px 8px; border-bottom: 1px solid rgba(34,211,238,0.04); vertical-align: middle; }
     .svc-table tr:last-child td { border-bottom: none; }
     .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 6px; padding: 3px 9px; font-size: 11px; font-weight: 700; }
-    .badge.active { background: rgba(52,211,153,0.1); color: var(--c-ok); }
-    .badge.inactive, .badge.failed, .badge.unknown { background: rgba(248,113,113,0.1); color: var(--c-bad); }
-    .svc-actions { display: flex; gap: 6px; justify-content: flex-end; }
+    .badge.active, .badge.enabled { background: rgba(52,211,153,0.1); color: var(--c-ok); }
+    .badge.inactive, .badge.failed, .badge.unknown, .badge.disabled { background: rgba(248,113,113,0.1); color: var(--c-bad); }
+    .badge.static, .badge.masked { background: rgba(255,255,255,0.05); color: var(--c-muted); }
+    .svc-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; align-items: center; }
     .btn-sm { padding: 5px 11px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s; border: 1px solid var(--c-border); background: rgba(34,211,238,0.05); color: var(--c-primary); }
     .btn-sm:hover { background: rgba(34,211,238,0.14); }
     .btn-sm.warn { color: var(--c-warn); border-color: rgba(251,191,36,0.2); background: rgba(251,191,36,0.06); }
     .btn-sm.warn:hover { background: rgba(251,191,36,0.16); }
     .btn-sm:disabled { opacity: 0.4; cursor: default; }
+    .svc-select { background: var(--c-surface2); border: 1px solid var(--c-border); border-radius: 7px; color: var(--c-muted); font-size: 11px; font-weight: 700; padding: 5px 8px; cursor: pointer; font-family: inherit; }
 
     .err { color: var(--c-bad); font-size: 12px; padding: 8px 2px; }
     .muted { color: var(--c-muted); font-size: 12px; }
 
-    /* ログモーダル */
+    /* メンテナンス */
+    .ops { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-op { display: inline-flex; align-items: center; gap: 7px; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid var(--c-border); background: rgba(34,211,238,0.06); color: var(--c-primary); transition: all 0.15s; font-family: 'Outfit','Noto Sans JP',sans-serif; }
+    .btn-op:hover { background: rgba(34,211,238,0.14); }
+    .btn-op:disabled { opacity: 0.4; cursor: default; }
+    .btn-op.danger { color: var(--c-bad); border-color: rgba(248,113,113,0.25); background: rgba(248,113,113,0.06); }
+    .btn-op.danger:hover { background: rgba(248,113,113,0.16); }
+    .op-out { margin-top: 14px; padding: 12px 14px; background: var(--c-surface2); border: 1px solid var(--c-border); border-radius: 10px; font-family: 'DM Mono', monospace; font-size: 12px; line-height: 1.6; color: var(--c-accent); white-space: pre-wrap; word-break: break-word; max-height: 280px; overflow: auto; display: none; }
+    .op-out.show { display: block; }
+    .op-out.bad { color: var(--c-bad); }
+
+    /* コメント管理 */
+    .cm-head { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+    .cm-list { display: flex; flex-direction: column; gap: 8px; }
+    .cm-item { display: flex; gap: 12px; align-items: flex-start; background: var(--c-surface2); border: 1px solid var(--c-border); border-radius: 10px; padding: 11px 13px; }
+    .cm-body { flex: 1; min-width: 0; }
+    .cm-meta { font-size: 11px; color: var(--c-muted); margin-bottom: 3px; }
+    .cm-meta .nick { color: var(--c-text); font-weight: 700; }
+    .cm-meta .slug { font-family: 'DM Mono', monospace; background: rgba(34,211,238,0.07); color: var(--c-secondary); border-radius: 4px; padding: 1px 6px; margin-left: 6px; }
+    .cm-msg { font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+    .btn-del { padding: 5px 11px; border: 1px solid rgba(248,113,113,0.25); border-radius: 7px; background: rgba(248,113,113,0.08); color: var(--c-bad); font-size: 11px; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+    .btn-del:hover { background: rgba(248,113,113,0.18); }
+
+    /* モーダル（ログ / 再起動確認） */
     .modal-overlay { position: fixed; inset: 0; background: rgba(4,11,18,0.82); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
     .modal-overlay.open { display: flex; }
     .modal-card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 18px; width: min(820px, 100%); max-height: 86vh; display: flex; flex-direction: column; box-shadow: 0 32px 80px rgba(0,0,0,0.6); }
@@ -94,6 +119,11 @@
     .modal-close { margin-left: auto; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--c-muted); border-radius: 8px; padding: 4px 12px; font-size: 12px; cursor: pointer; }
     .modal-close:hover { color: var(--c-text); background: rgba(255,255,255,0.1); }
     .log-pre { margin: 0; padding: 16px 20px; overflow: auto; font-family: 'DM Mono', monospace; font-size: 12px; line-height: 1.6; color: var(--c-accent); white-space: pre-wrap; word-break: break-word; }
+    .confirm-body { padding: 22px 24px; }
+    .confirm-body p { font-size: 13px; color: var(--c-text); line-height: 1.7; margin-bottom: 14px; }
+    .confirm-body input { width: 100%; padding: 11px 14px; border: 1px solid var(--c-border); border-radius: 10px; background: var(--c-surface2); color: var(--c-text); font-size: 14px; font-family: 'DM Mono',monospace; outline: none; margin-bottom: 14px; }
+    .confirm-body input:focus { border-color: var(--c-bad); }
+    .confirm-btns { display: flex; gap: 10px; }
 
     .footer-note { text-align: center; font-size: 11px; color: var(--c-muted); opacity: 0.6; margin-top: 6px; }
   </style>
@@ -127,9 +157,33 @@
       </div>
     </div>
 
+    <div class="card">
+      <div class="section-label">メンテナンス</div>
+      <div class="ops">
+        <button class="btn-op" id="btnDeploy" onclick="doDeploy()">⤓ デプロイ（git pull）</button>
+        <button class="btn-op" id="btnNginx" onclick="doNginxReload()">↻ nginx テスト&リロード</button>
+        <button class="btn-op danger" onclick="askReboot()">⏻ サーバー再起動</button>
+      </div>
+      <pre class="op-out" id="opOut"></pre>
+    </div>
+
+    <div class="card">
+      <div class="section-label">CEG コメント管理
+        <button class="reload" onclick="loadComments()">更新</button>
+      </div>
+      <div class="cm-head">
+        <select class="svc-select" id="cmSlug" onchange="loadComments()">
+          <option value="">全メンバー</option>
+        </select>
+        <span class="muted" id="cmCount"></span>
+      </div>
+      <div class="cm-list" id="cmList"><p class="muted">読み込み中…</p></div>
+    </div>
+
     <div class="footer-note">© Tokusho Control — 本人専用（Basic認証）</div>
   </main>
 
+  <!-- ログモーダル -->
   <div class="modal-overlay" id="logModal" onclick="if(event.target===this)closeLogs()">
     <div class="modal-card">
       <div class="modal-head">
@@ -140,10 +194,26 @@
     </div>
   </div>
 
+  <!-- 再起動確認モーダル -->
+  <div class="modal-overlay" id="rebootModal" onclick="if(event.target===this)closeReboot()">
+    <div class="modal-card" style="width:min(420px,100%)">
+      <div class="modal-head"><span class="modal-title">⏻ サーバー<em>再起動</em></span>
+        <button class="modal-close" onclick="closeReboot()">閉じる</button></div>
+      <div class="confirm-body">
+        <p>サーバーを再起動します。全サービスが一時停止し、復帰まで1〜2分かかります。<br>続けるには <b>REBOOT</b> と入力してください。</p>
+        <input type="text" id="rebootConfirm" placeholder="REBOOT" autocomplete="off" oninput="document.getElementById('btnReboot').disabled = this.value !== 'REBOOT'">
+        <div class="confirm-btns">
+          <button class="btn-op" onclick="closeReboot()" style="flex:1">キャンセル</button>
+          <button class="btn-op danger" id="btnReboot" onclick="doReboot()" style="flex:1" disabled>再起動する</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     var API = '/admin/api';
+    var MEMBERS = ['nene', 'naran', 'tomoka', 'shodai', 'maika'];
 
-    // 公開サイト（リンク + 到達性ドット）
     var SITES = [
       { name: 'ポートフォリオ',   url: 'https://portfolio.tokusho.org' },
       { name: 'CEG 飲み部図鑑',   url: 'https://ceg.tokusho.org' },
@@ -151,7 +221,7 @@
       { name: 'SSH（URL経由）',   url: 'https://ssh.tokusho.org' }
     ];
 
-    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     function fmtBytes(n) {
       if (n == null) return '-';
@@ -160,6 +230,18 @@
       return n.toFixed(n < 10 && i > 0 ? 1 : 0) + u[i];
     }
 
+    function api(method, path, body) {
+      var opts = { method: method, cache: 'no-store', headers: {} };
+      if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+      return fetch(API + path, opts).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (!r.ok) throw new Error(j.detail || ('HTTP ' + r.status));
+          return j;
+        });
+      });
+    }
+
+    // ── 公開サイト ──
     function renderSites() {
       var wrap = document.getElementById('sites');
       wrap.innerHTML = SITES.map(function (s, i) {
@@ -169,7 +251,6 @@
           + '<span class="site-url">' + esc(s.url.replace(/^https?:\/\//, '')) + '</span></span>'
           + '<span class="site-arrow">↗</span></a>';
       }).join('');
-      // 到達性チェック（no-cors: 成功=到達、失敗=未到達のざっくり判定）
       SITES.forEach(function (s, i) {
         fetch(s.url, { mode: 'no-cors', cache: 'no-store' })
           .then(function () { document.getElementById('dot' + i).className = 'dot up'; })
@@ -177,6 +258,7 @@
       });
     }
 
+    // ── サーバー状況 ──
     function renderMetrics(sys) {
       var el = document.getElementById('metrics');
       if (!sys) { el.innerHTML = '<p class="err">取得できませんでした</p>'; return; }
@@ -193,27 +275,35 @@
         + '<div class="bar"><span class="' + (memPct >= 85 ? 'hot' : '') + '" style="width:' + memPct + '%"></span></div></div>';
     }
 
+    // ── サービス ──
     function renderServices(list) {
       var wrap = document.getElementById('svcWrap');
       if (!list || !list.length) { wrap.innerHTML = '<p class="muted">サービスなし</p>'; return; }
       var rows = list.map(function (s) {
-        var active = s.active === 'active';
-        var cls = active ? 'active' : (s.active || 'unknown');
+        var actCls = s.active === 'active' ? 'active' : (s.active || 'unknown');
+        var enCls = s.enabled;
+        var blocked = s.blocked || [];
+        var opts = ['start', 'stop', 'enable', 'disable'].filter(function (a) { return blocked.indexOf(a) < 0; });
+        var optLabel = { start: '▶ 開始', stop: '⏹ 停止', enable: '✓ 自動起動ON', disable: '✕ 自動起動OFF' };
+        var sel = '<select class="svc-select" onchange="svcAction(\'' + esc(s.id) + '\',this.value,this)">'
+          + '<option value="">操作 ▾</option>'
+          + opts.map(function (a) { return '<option value="' + a + '">' + optLabel[a] + '</option>'; }).join('')
+          + '</select>';
         return '<tr>'
           + '<td><span style="font-weight:700">' + esc(s.label) + '</span><br><span class="muted" style="font-family:DM Mono,monospace;font-size:11px">' + esc(s.id) + '</span></td>'
-          + '<td><span class="badge ' + cls + '">' + esc(s.active) + '</span></td>'
+          + '<td><span class="badge ' + actCls + '">' + esc(s.active) + '</span></td>'
+          + '<td><span class="badge ' + esc(enCls) + '">' + esc(s.enabled) + '</span></td>'
           + '<td><div class="svc-actions">'
           + '<button class="btn-sm" onclick="showLogs(\'' + esc(s.id) + '\')">ログ</button>'
-          + '<button class="btn-sm warn" onclick="restartSvc(\'' + esc(s.id) + '\',this)">再起動</button>'
-          + '</div></td></tr>';
+          + '<button class="btn-sm warn" onclick="svcAction(\'' + esc(s.id) + '\',\'restart\',this)">再起動</button>'
+          + sel + '</div></td></tr>';
       }).join('');
-      wrap.innerHTML = '<table class="svc-table"><thead><tr><th>サービス</th><th>状態</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>';
+      wrap.innerHTML = '<table class="svc-table"><thead><tr><th>サービス</th><th>状態</th><th>自動起動</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>';
     }
 
     function loadStatus() {
       document.getElementById('metrics').innerHTML = '<p class="muted">読み込み中…</p>';
-      fetch(API + '/status', { cache: 'no-store' })
-        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      api('GET', '/status')
         .then(function (d) { renderMetrics(d.system); renderServices(d.services); })
         .catch(function () {
           document.getElementById('metrics').innerHTML = '<p class="err">管理APIに接続できません（tokusho-admin 起動 / nginx /admin/api/ を確認）</p>';
@@ -221,38 +311,115 @@
         });
     }
 
-    function restartSvc(id, btn) {
-      if (!confirm(id + ' を再起動しますか？')) return;
-      btn.disabled = true; btn.textContent = '…';
-      fetch(API + '/restart', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ service: id })
-      })
-        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-        .then(function (res) {
-          if (!res.ok || !res.j.ok) alert('再起動失敗: ' + (res.j.detail || res.j.message || '不明'));
-          loadStatus();
-        })
-        .catch(function (e) { alert('通信エラー: ' + e); })
-        .finally(function () { btn.disabled = false; btn.textContent = '再起動'; });
+    function svcAction(id, action, el) {
+      if (!action) return;
+      if (!confirm(id + ' を ' + action + ' しますか？')) { if (el && el.tagName === 'SELECT') el.value = ''; return; }
+      if (el) el.disabled = true;
+      api('POST', '/service', { service: id, action: action })
+        .then(function (r) { if (!r.ok) alert('失敗: ' + (r.message || '不明')); loadStatus(); })
+        .catch(function (e) { alert('エラー: ' + e.message); })
+        .finally(function () { if (el) { el.disabled = false; if (el.tagName === 'SELECT') el.value = ''; } });
     }
 
+    // ── ログ ──
     function showLogs(id) {
       document.getElementById('logSvc').textContent = id;
       document.getElementById('logBody').textContent = '読み込み中…';
       document.getElementById('logModal').classList.add('open');
-      fetch(API + '/logs?service=' + encodeURIComponent(id) + '&lines=120', { cache: 'no-store' })
-        .then(function (r) { if (!r.ok) return r.json().then(function (j) { throw new Error(j.detail || r.status); }); return r.json(); })
+      api('GET', '/logs?service=' + encodeURIComponent(id) + '&lines=120')
         .then(function (d) { document.getElementById('logBody').textContent = (d.lines || []).join('\n') || '(ログなし)'; })
         .catch(function (e) { document.getElementById('logBody').textContent = 'ログ取得失敗: ' + e.message; });
     }
     function closeLogs() { document.getElementById('logModal').classList.remove('open'); }
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLogs(); });
+
+    // ── メンテナンス ──
+    function showOut(text, bad) {
+      var el = document.getElementById('opOut');
+      el.textContent = text;
+      el.className = 'op-out show' + (bad ? ' bad' : '');
+    }
+
+    function doDeploy() {
+      var btn = document.getElementById('btnDeploy');
+      btn.disabled = true; showOut('git pull 実行中…');
+      api('POST', '/deploy')
+        .then(function (r) {
+          var head = (r.before && r.after && r.before !== r.after) ? (r.before + ' → ' + r.after) : (r.after + '（更新なし）');
+          var changed = (r.changed && r.changed.length) ? '\n\n変更ファイル:\n' + r.changed.join('\n') : '';
+          showOut('HEAD: ' + head + '\n\n' + (r.output || '') + changed, !r.ok);
+          loadStatus();
+        })
+        .catch(function (e) { showOut('デプロイ失敗: ' + e.message, true); })
+        .finally(function () { btn.disabled = false; });
+    }
+
+    function doNginxReload() {
+      var btn = document.getElementById('btnNginx');
+      btn.disabled = true; showOut('nginx -t 実行中…');
+      api('POST', '/nginx/reload')
+        .then(function (r) { showOut((r.ok ? '✓ リロード成功\n\n' : '✗ 失敗（' + r.stage + '）\n\n') + (r.output || ''), !r.ok); })
+        .catch(function (e) { showOut('失敗: ' + e.message, true); })
+        .finally(function () { btn.disabled = false; });
+    }
+
+    function askReboot() {
+      document.getElementById('rebootConfirm').value = '';
+      document.getElementById('btnReboot').disabled = true;
+      document.getElementById('rebootModal').classList.add('open');
+      setTimeout(function () { document.getElementById('rebootConfirm').focus(); }, 50);
+    }
+    function closeReboot() { document.getElementById('rebootModal').classList.remove('open'); }
+    function doReboot() {
+      closeReboot();
+      showOut('再起動シグナルを送信中…');
+      api('POST', '/reboot')
+        .then(function () { showOut('⏻ 再起動シグナルを送信しました。1〜2分後に復帰します。', false); })
+        .catch(function (e) { showOut('再起動失敗: ' + e.message, true); });
+    }
+
+    // ── CEGコメント管理 ──
+    function initSlugSelect() {
+      var sel = document.getElementById('cmSlug');
+      MEMBERS.forEach(function (m) {
+        var o = document.createElement('option'); o.value = m; o.textContent = m; sel.appendChild(o);
+      });
+    }
+
+    function loadComments() {
+      var slug = document.getElementById('cmSlug').value;
+      var wrap = document.getElementById('cmList');
+      wrap.innerHTML = '<p class="muted">読み込み中…</p>';
+      document.getElementById('cmCount').textContent = '';
+      api('GET', '/comments' + (slug ? '?slug=' + encodeURIComponent(slug) : ''))
+        .then(function (d) {
+          var list = d.comments || [];
+          document.getElementById('cmCount').textContent = list.length + ' 件';
+          if (!list.length) { wrap.innerHTML = '<p class="muted">コメントなし</p>'; return; }
+          wrap.innerHTML = list.map(function (c) {
+            return '<div class="cm-item" id="cm' + c.id + '">'
+              + '<div class="cm-body"><div class="cm-meta"><span class="nick">' + esc(c.nickname) + '</span>'
+              + '<span class="slug">' + esc(c.slug) + '</span> ・ ' + esc(c.created_at) + '</div>'
+              + '<div class="cm-msg">' + esc(c.message) + '</div></div>'
+              + '<button class="btn-del" onclick="delComment(' + c.id + ')">削除</button></div>';
+          }).join('');
+        })
+        .catch(function (e) { wrap.innerHTML = '<p class="err">取得失敗: ' + esc(e.message) + '</p>'; });
+    }
+
+    function delComment(id) {
+      if (!confirm('このコメントを削除しますか？')) return;
+      api('POST', '/comments/delete', { id: id })
+        .then(function () { var el = document.getElementById('cm' + id); if (el) el.remove(); })
+        .catch(function (e) { alert('削除失敗: ' + e.message); });
+    }
 
     function tickClock() { document.getElementById('clock').textContent = new Date().toLocaleString('ja-JP'); }
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeLogs(); closeReboot(); } });
 
     renderSites();
+    initSlugSelect();
     loadStatus();
+    loadComments();
     tickClock();
     setInterval(tickClock, 1000);
     setInterval(loadStatus, 30000);
