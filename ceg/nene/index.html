@@ -86,6 +86,22 @@
     .roast-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 
     .footer-note { text-align: center; margin-top: 48px; font-size: 11px; color: var(--muted); opacity: 0.5; }
+
+    /* ─── スマホ対応 ─── */
+    @media (max-width: 560px) {
+      .main { padding: 32px 16px 64px; }
+      .card-top { padding: 24px 20px 0; }
+      .card-top > div[style] { flex-direction: column; align-items: flex-start; }
+      .drinks-meter { position: static; text-align: left; margin-bottom: 20px; }
+      .meter-value { font-size: 40px; }
+      .photo { width: 150px; height: 180px; }
+      .name-area { padding: 18px 0 24px 0; }
+      .name-ja { font-size: 32px; }
+      .name-en { margin-bottom: 16px; }
+      .card-body { padding: 28px 20px; }
+      .specs { gap: 10px; }
+      .comment { padding: 16px 18px; font-size: 14px; }
+    }
   </style>
 </head>
 <body>
@@ -96,7 +112,7 @@
   </header>
 
   <main class="main">
-    <div class="drinks-badge">飲み部レベル: 伝説級</div>
+    <div class="drinks-badge">やる気100、次の日0</div>
 
     <div class="profile-card">
       <div class="card-top">
@@ -116,10 +132,10 @@
             <div class="name-ja">和田寧々</div>
             <div class="name-en">WADA NENE</div>
             <div class="tags">
-              <span class="tag tag-year">4回生</span>
-              <span class="tag tag-col">ISTJ</span>
-              <span class="tag tag-col">辛辣担当</span>
-              <span class="tag tag-gray">🍺 主力</span>
+              <span class="tag tag-year">女子大</span>
+              <span class="tag tag-col">ISFP（冒険家）</span>
+              <span class="tag tag-col">頑張る担当</span>
+              <span class="tag tag-gray">ネガティブ</span>
             </div>
           </div>
         </div>
@@ -128,33 +144,38 @@
       <div class="card-body">
         <div class="section-title">基本情報</div>
         <div class="specs">
+          <div class="spec-item"><div class="spec-label">大学</div><div class="spec-val" style="font-size:15px">駒女</div></div>
+          <div class="spec-item"><div class="spec-label">学部</div><div class="spec-val" style="font-size:15px">観光</div></div>
           <div class="spec-item"><div class="spec-label">学年</div><div class="spec-val col">4回生</div></div>
-          <div class="spec-item"><div class="spec-label">タイプ</div><div class="spec-val">ISTJ</div></div>
+          <div class="spec-item"><div class="spec-label">タイプ</div><div class="spec-val">ISFP</div></div>
+        </div>
+        <div class="specs" style="margin-top:-20px">
           <div class="spec-item"><div class="spec-label">イメカラ</div><div class="spec-val col">青</div></div>
-          <div class="spec-item"><div class="spec-label">飲み部Lv</div><div class="spec-val col">∞</div></div>
+          <div class="spec-item"><div class="spec-label">誕生日</div><div class="spec-val" style="font-size:15px">12/18</div></div>
+          <div class="spec-item"><div class="spec-label">血液型</div><div class="spec-val">O型</div></div>
+          <div class="spec-item"><div class="spec-label">入社</div><div class="spec-val" style="font-size:13px">2023.5</div></div>
         </div>
 
         <div class="comment-section">
           <div class="section-title">プロフィール</div>
-          <div class="comment">チーズエッグガーデンが誇る、最強の飲み部戦士。4回生という立場を完全に無視して飲み続ける姿勢は、後輩たちに「あれが大人か」と謎の感動を与えている。口から出てくるのは酒か辛辣なひとことかのどちらかであり、どちらも容赦がない。ISTJ的几帳面さを、飲み会の段取りと発言の切れ味にのみ全振りした結果がこの人物である。</div>
+          <div class="comment">「誘われたら行きます」を信条に、声がかかればとりあえず顔を出す女子大・観光の4回生。ISFP（冒険家）らしく勢いで飛び込んでいくが、酔うと毒を吐いてしまうのが玉に瑕。ただ本人の名誉のために言っておくと、「毒を吐いた反省」と「飲みの場に行ってしまった反省」を毎日欠かさず行う、反省だけは超一流の頑張る担当である。自己嫌悪と二日酔いをワンセットで抱えながら、それでも今日も誘いに応じてしまう。趣味は散歩、好きなものはアイドル。</div>
         </div>
 
         <div class="gauge-section">
           <div class="section-title">能力値</div>
-          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">飲み耐久力</span><span class="gauge-score" id="g1score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g1" data-val="97"></div></div></div>
-          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">辛辣ワード精度</span><span class="gauge-score" id="g2score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g2" data-val="99"></div></div></div>
-          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">真面目っぽさ（外面）</span><span class="gauge-score" id="g3score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g3" data-val="78"></div></div></div>
-          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">飲み会への熱量</span><span class="gauge-score" id="g4score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g4" data-val="100"></div></div></div>
-          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">4回生っぽさ</span><span class="gauge-score" id="g5score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g5" data-val="12"></div></div></div>
+          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">二日酔い率</span><span class="gauge-score" id="g1score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g1" data-val="80"></div></div></div>
+          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">酔い速度</span><span class="gauge-score" id="g2score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g2" data-val="50"></div></div></div>
+          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">自己嫌悪発動率</span><span class="gauge-score" id="g3score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g3" data-val="100"></div></div></div>
+          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">胃腸の弱さ</span><span class="gauge-score" id="g4score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g4" data-val="95"></div></div></div>
+          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">記憶力</span><span class="gauge-score" id="g5score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g5" data-val="70"></div></div></div>
         </div>
 
         <div class="roast-section">
           <div class="section-title">目撃証言</div>
           <ul class="roast-list">
-            <li class="roast-item"><span class="roast-icon">💬</span>セブンイレブンの前でしゃがんでいた。飲む前か飲んだ後かは不明。</li>
-            <li class="roast-item"><span class="roast-icon">💬</span>「4回生なんだからもう少し……」と言いかけた後輩が次の瞬間に飲まされていた。</li>
-            <li class="roast-item"><span class="roast-icon">💬</span>ISTJ特有の「計画的に飲む」スタイルが、結果的に一番たくさん飲む結果になっている。</li>
-            <li class="roast-item"><span class="roast-icon">💬</span>発言が辛辣すぎて、たまにそのまま核心をついてくる。困る。</li>
+            <li class="roast-item"><span class="roast-icon">💬</span>みんなにお酒を奢っていた（優しい女神）。</li>
+            <li class="roast-item"><span class="roast-icon">💬</span>よく調布駅前のトイレにいる。</li>
+            <li class="roast-item"><span class="roast-icon">💬</span>ナランと鬼ごっこをしていた。</li>
           </ul>
         </div>
       </div>
@@ -163,7 +184,7 @@
   </main>
 
   <script>
-    const meterVal = 98; let current = 0;
+    const meterVal = 85; let current = 0;
     const iv = setInterval(function() { current = Math.min(current+2, meterVal); document.getElementById('meterNum').textContent = current; if(current>=meterVal) clearInterval(iv); }, 20);
     setTimeout(function() { document.getElementById('meterBar').style.width = meterVal+'%'; }, 100);
     setTimeout(function() {

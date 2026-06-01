@@ -104,6 +104,23 @@
     }
 
     .footer-note { text-align: center; margin-top: 48px; font-size: 11px; color: var(--muted); opacity: 0.5; }
+
+    /* ─── スマホ対応 ─── */
+    @media (max-width: 560px) {
+      .main { padding: 32px 16px 64px; }
+      .card-top { padding: 24px 20px 0; }
+      .card-top > div[style] { flex-direction: column; align-items: flex-start; }
+      .drinks-meter { position: static; text-align: left; margin-bottom: 20px; }
+      .meter-value { font-size: 40px; }
+      .photo { width: 150px; height: 180px; }
+      .name-area { padding: 18px 0 24px 0; }
+      .name-ja { font-size: 32px; }
+      .name-en { margin-bottom: 16px; }
+      .card-body { padding: 28px 20px; }
+      .specs { gap: 10px; }
+      .comment { padding: 16px 18px; font-size: 14px; }
+      .video-wrap video { max-height: 360px; }
+    }
   </style>
 </head>
 <body>

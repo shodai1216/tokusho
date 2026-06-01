@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  CEG 飲み部図鑑 — メンバーページ テンプレート
+  ============================================================
+  使い方:
+    1. このファイルを ceg/<slug>/index.html にコピー
+    2. {{...}} のプレースホルダを置換（項目一覧は docs/ceg_member_template.md）
+    3. 顔写真を ceg/<slug>/<slug>.jpg に配置（/<slug>/<slug>.jpg で参照）
+    4. 動画があるメンバーのみ ceg/<slug>/preview.mp4 を置く。
+       動画が無い場合は <!-- VIDEO START --> 〜 <!-- VIDEO END --> を節ごと削除
+    5. 作成後は ceg/index.html の一覧にカードを1枚追加する
+
+  色の変更:
+    :root の --col / --grad-* / --top-* / --bg / --surface / --text / --muted
+    を差し替えるだけで全体の配色が変わる（派生色は color-mix で自動計算）。
+    例（青）  : --col:#3b82f6; --grad-from:#1d4ed8; --grad-to:#60a5fa;
+               --top-a:#0c1e36; --top-b:#0f2347; --top-c:#1a3060;
+               --bg:#060a10; --surface:#0c1420; --text:#e8f0fe; --muted:#6b8ab8;
+    例（ピンク）: --col:#ec4899; --grad-from:#9d174d; --grad-to:#f472b6;
+               --top-a:#1a0820; --top-b:#280d2e; --top-c:#32103a;
+               --bg:#100810; --surface:#1a0d1a; --text:#fce7f3; --muted:#9b6b8a;
+  ============================================================
+-->
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{NAME_JA}} — チーズエッグガーデン 飲み部図鑑</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=DM+Mono:wght@400;500&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* ▼ メンバーごとに変更（イメージカラー） */
+      --col:       {{ACCENT}};
+      --grad-from: {{GRAD_FROM}};
+      --grad-to:   {{GRAD_TO}};
+      --top-a:     {{TOP_A}};
+      --top-b:     {{TOP_B}};
+      --top-c:     {{TOP_C}};
+      --bg:        {{BG}};
+      --surface:   {{SURFACE}};
+      --text:      {{TEXT}};
+      --muted:     {{MUTED}};
+      /* ▼ 派生色（変更不要・--col から自動計算） */
+      --col-dim:  color-mix(in srgb, var(--col) 15%, transparent);
+      --col-glow: color-mix(in srgb, var(--col) 50%, transparent);
+      --border:   color-mix(in srgb, var(--col) 15%, transparent);
+      --col-soft: color-mix(in srgb, var(--col) 60%, white);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Zen Kaku Gothic New', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at 25% 20%, color-mix(in srgb, var(--col) 8%, transparent) 0%, transparent 50%), radial-gradient(ellipse at 75% 80%, color-mix(in srgb, var(--col) 6%, transparent) 0%, transparent 50%); pointer-events: none; }
+
+    .header { position: relative; z-index: 10; padding: 16px 24px; border-bottom: 1px solid var(--border); background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(12px); display: flex; align-items: center; gap: 14px; }
+    .header a { text-decoration: none; color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 6px; transition: color 0.15s; }
+    .header a:hover { color: var(--col); }
+    .header-logo { font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 900; color: var(--col); letter-spacing: 0.08em; opacity: 0.7; }
+    .header-sep { color: var(--muted); font-size: 14px; }
+
+    .main { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
+    .drinks-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--col-dim); border: 1px solid color-mix(in srgb, var(--col) 30%, transparent); border-radius: 30px; padding: 6px 16px; margin-bottom: 32px; font-size: 12px; font-weight: 700; color: var(--col); letter-spacing: 0.06em; }
+    .drinks-badge::before { content: '🍺'; font-size: 14px; } /* アイコンは変更可 */
+
+    .profile-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; box-shadow: 0 0 60px color-mix(in srgb, var(--col) 6%, transparent), 0 24px 48px rgba(0,0,0,0.45); animation: fadeUp 0.6s ease both; }
+    @keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform:none; } }
+
+    .card-top { background: linear-gradient(135deg, var(--top-a) 0%, var(--top-b) 60%, var(--top-c) 100%); position: relative; overflow: hidden; padding: 40px 40px 0; }
+    .card-top::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 0%, color-mix(in srgb, var(--col) 18%, transparent) 0%, transparent 60%); pointer-events: none; }
+
+    .drinks-meter { position: absolute; top: 24px; right: 32px; z-index: 2; text-align: center; }
+    .meter-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-weight: 700; }
+    .meter-value { font-family: 'Outfit', sans-serif; font-size: 52px; font-weight: 900; line-height: 1; color: var(--col); text-shadow: 0 0 30px var(--col-glow); }
+    .meter-unit { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .meter-bar-wrap { width: 60px; height: 4px; background: var(--col-dim); border-radius: 4px; margin-top: 8px; overflow: hidden; }
+    .meter-bar { height: 100%; border-radius: 4px; width: 0%; background: linear-gradient(90deg, var(--grad-from), var(--grad-to)); box-shadow: 0 0 8px var(--col-glow); transition: width 1.2s cubic-bezier(0.4,0,0.2,1) 0.4s; }
+
+    .photo-wrap { position: relative; z-index: 2; margin-top: 20px; }
+    .photo { width: 200px; height: 240px; object-fit: cover; object-position: top; border-radius: 16px 16px 0 0; border: 2px solid color-mix(in srgb, var(--col) 30%, transparent); border-bottom: none; filter: contrast(1.05) saturate(1); display: block; }
+    .photo-frame { position: absolute; inset: 0; border-radius: 16px 16px 0 0; background: linear-gradient(to bottom, transparent 60%, color-mix(in srgb, var(--surface) 40%, transparent) 100%); pointer-events: none; }
+
+    .name-area { position: relative; z-index: 2; padding: 0 0 32px 28px; flex: 1; }
+    .member-no { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--col); opacity: 0.7; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .name-ja { font-size: 42px; font-weight: 900; line-height: 1.1; letter-spacing: -0.02em; color: #fff; margin-bottom: 4px; }
+    .name-en { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 20px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .tag-col  { background: var(--col-dim); color: var(--col-soft); border: 1px solid color-mix(in srgb, var(--col) 25%, transparent); }
+    .tag-gray { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid rgba(255,255,255,0.1); }
+    .tag-alt  { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); } /* 学年/大学など強調用（任意） */
+
+    .card-body { padding: 36px 40px; }
+    .section-title { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--col); display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .section-title::before { content: ''; width: 3px; height: 12px; background: var(--col); border-radius: 2px; box-shadow: 0 0 8px var(--col-glow); }
+
+    .specs { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-bottom: 32px; }
+    @media (min-width: 600px) { .specs { grid-template-columns: repeat(4,1fr); } }
+    .spec-item { background: color-mix(in srgb, var(--col) 5%, transparent); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+    .spec-label { font-size: 9px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; font-weight: 700; }
+    .spec-val { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); }
+    .spec-val.col { color: var(--col); }
+
+    .comment-section { margin-bottom: 32px; }
+    .comment { background: color-mix(in srgb, var(--col) 4%, transparent); border-left: 3px solid var(--col); border-radius: 0 12px 12px 0; padding: 20px 22px; font-size: 15px; line-height: 1.9; color: var(--col-soft); }
+
+    .gauge-section { margin-bottom: 32px; }
+    .gauge-item { margin-bottom: 14px; }
+    .gauge-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; }
+    .gauge-name  { color: var(--muted); font-weight: 600; }
+    .gauge-score { font-family: 'DM Mono', monospace; color: var(--col); font-weight: 700; }
+    .gauge-track { width: 100%; height: 6px; background: color-mix(in srgb, var(--col) 10%, transparent); border-radius: 6px; overflow: hidden; }
+    .gauge-fill  { height: 100%; border-radius: 6px; width: 0%; background: linear-gradient(90deg, var(--grad-from), var(--grad-to)); box-shadow: 0 0 8px var(--col-glow); transition: width 1.4s cubic-bezier(0.4,0,0.2,1); }
+
+    .roast-section { margin-bottom: 32px; }
+    .roast-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .roast-item { display: flex; gap: 10px; align-items: flex-start; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px 16px; font-size: 14px; color: color-mix(in srgb, var(--col) 40%, white); line-height: 1.6; }
+    .roast-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ─── 次回予告動画（任意） ─── */
+    .video-section { margin-bottom: 0; }
+    .video-wrap { border-radius: 16px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 0 40px color-mix(in srgb, var(--col) 8%, transparent); background: #000; position: relative; }
+    .video-wrap video { width: 100%; display: block; max-height: 500px; object-fit: contain; }
+    .video-label { position: absolute; top: 12px; left: 12px; background: color-mix(in srgb, var(--col) 85%, transparent); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; }
+
+    .footer-note { text-align: center; margin-top: 48px; font-size: 11px; color: var(--muted); opacity: 0.5; }
+
+    /* ─── スマホ対応 ─── */
+    @media (max-width: 560px) {
+      .main { padding: 32px 16px 64px; }
+      .card-top { padding: 24px 20px 0; }
+      .card-top > div[style] { flex-direction: column; align-items: flex-start; }
+      .drinks-meter { position: static; text-align: left; margin-bottom: 20px; }
+      .meter-value { font-size: 40px; }
+      .photo { width: 150px; height: 180px; }
+      .name-area { padding: 18px 0 24px 0; }
+      .name-ja { font-size: 32px; }
+      .name-en { margin-bottom: 16px; }
+      .card-body { padding: 28px 20px; }
+      .specs { gap: 10px; }
+      .comment { padding: 16px 18px; font-size: 14px; }
+      .video-wrap video { max-height: 360px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-logo">🧀 Cheese Egg Garden</div>
+    <span class="header-sep">／</span>
+    <a href="/">← 図鑑に戻る</a>
+  </header>
+
+  <main class="main">
+    <div class="drinks-badge">{{BADGE}}</div>
+
+    <div class="profile-card">
+      <div class="card-top">
+        <div class="drinks-meter">
+          <div class="meter-label">飲み度</div>
+          <div class="meter-value" id="meterNum">0</div>
+          <div class="meter-unit">/ 100</div>
+          <div class="meter-bar-wrap"><div class="meter-bar" id="meterBar"></div></div>
+        </div>
+        <div style="display:flex;align-items:flex-end;width:100%">
+          <div class="photo-wrap">
+            <img src="/{{SLUG}}/{{SLUG}}.jpg" alt="{{NAME_JA}}" class="photo">
+            <div class="photo-frame"></div>
+          </div>
+          <div class="name-area">
+            <div class="member-no">MEMBER // No.{{NO}}</div>
+            <div class="name-ja">{{NAME_JA}}</div>
+            <div class="name-en">{{NAME_EN}}</div>
+            <div class="tags">
+              <!-- タグは3〜4個。不要な行は削除 -->
+              <span class="tag tag-alt">{{TAG1}}</span>
+              <span class="tag tag-col">{{TAG2}}</span>
+              <span class="tag tag-col">{{TAG3}}</span>
+              <span class="tag tag-gray">{{TAG4}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="section-title">基本情報</div>
+        <div class="specs">
+          <div class="spec-item"><div class="spec-label">大学</div><div class="spec-val" style="font-size:13px">{{UNIV}}</div></div>
+          <div class="spec-item"><div class="spec-label">学部</div><div class="spec-val" style="font-size:13px">{{FACULTY}}</div></div>
+          <div class="spec-item"><div class="spec-label">学年</div><div class="spec-val col">{{GRADE}}</div></div>
+          <div class="spec-item"><div class="spec-label">タイプ</div><div class="spec-val">{{MBTI}}</div></div>
+        </div>
+        <div class="specs" style="margin-top:-20px">
+          <div class="spec-item"><div class="spec-label">イメカラ</div><div class="spec-val col">{{COLOR}}</div></div>
+          <div class="spec-item"><div class="spec-label">誕生日</div><div class="spec-val" style="font-size:15px">{{BIRTH}}</div></div>
+          <div class="spec-item"><div class="spec-label">血液型</div><div class="spec-val">{{BLOOD}}</div></div>
+          <div class="spec-item"><div class="spec-label">入社</div><div class="spec-val" style="font-size:13px">{{JOIN}}</div></div>
+        </div>
+
+        <div class="comment-section">
+          <div class="section-title">プロフィール</div>
+          <div class="comment">{{BIO}}</div>
+        </div>
+
+        <div class="gauge-section">
+          <div class="section-title">能力値</div>
+          <!-- data-val に 0〜100 を入れるとバーが伸びる -->
+          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">{{STAT1_NAME}}</span><span class="gauge-score" id="g1score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g1" data-val="{{STAT1_VAL}}"></div></div></div>
+          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">{{STAT2_NAME}}</span><span class="gauge-score" id="g2score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g2" data-val="{{STAT2_VAL}}"></div></div></div>
+          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">{{STAT3_NAME}}</span><span class="gauge-score" id="g3score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g3" data-val="{{STAT3_VAL}}"></div></div></div>
+          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">{{STAT4_NAME}}</span><span class="gauge-score" id="g4score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g4" data-val="{{STAT4_VAL}}"></div></div></div>
+          <div class="gauge-item"><div class="gauge-header"><span class="gauge-name">{{STAT5_NAME}}</span><span class="gauge-score" id="g5score">0</span></div><div class="gauge-track"><div class="gauge-fill" id="g5" data-val="{{STAT5_VAL}}"></div></div></div>
+        </div>
+
+        <div class="roast-section">
+          <div class="section-title">目撃証言</div>
+          <ul class="roast-list">
+            <!-- 3〜4個。不要な行は削除 -->
+            <li class="roast-item"><span class="roast-icon">💬</span>{{QUOTE1}}</li>
+            <li class="roast-item"><span class="roast-icon">💬</span>{{QUOTE2}}</li>
+            <li class="roast-item"><span class="roast-icon">💬</span>{{QUOTE3}}</li>
+            <li class="roast-item"><span class="roast-icon">💬</span>{{QUOTE4}}</li>
+          </ul>
+        </div>
+
+        <!-- VIDEO START : 動画が無いメンバーはこのブロックごと削除 -->
+        <div class="video-section">
+          <div class="section-title" style="margin-top:0">次回予告</div>
+          <div class="video-wrap">
+            <div class="video-label">{{VIDEO_LABEL}}</div>
+            <video controls playsinline preload="metadata">
+              <source src="/{{SLUG}}/preview.mp4" type="video/mp4">
+              動画を再生できません
+            </video>
+          </div>
+        </div>
+        <!-- VIDEO END -->
+
+      </div>
+    </div>
+    <div class="footer-note">© Cheese Egg Garden 飲み部図鑑 — 非公式・ネタサイトです</div>
+  </main>
+
+  <script>
+    // 飲み度メーター（{{DRINK_SCORE}} に 0〜100）
+    const meterVal = {{DRINK_SCORE}}; let current = 0;
+    const iv = setInterval(function() { current = Math.min(current+2, meterVal); document.getElementById('meterNum').textContent = current; if(current>=meterVal) clearInterval(iv); }, 20);
+    setTimeout(function() { document.getElementById('meterBar').style.width = meterVal+'%'; }, 100);
+    setTimeout(function() {
+      ['g1','g2','g3','g4','g5'].forEach(function(id,i) {
+        const el = document.getElementById(id); const val = el.dataset.val;
+        setTimeout(function() { el.style.width = val+'%'; let n=0; const sc=document.getElementById(id+'score'); const t=setInterval(function(){ n=Math.min(n+3,parseInt(val)); sc.textContent=n; if(n>=parseInt(val)) clearInterval(t); },15); }, i*120);
+      });
+    }, 300);
+  </script>
+</body>
+</html>

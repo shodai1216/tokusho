@@ -129,3 +129,5 @@ URLスラッグ: 例: nene / naran / （名前のローマ字小文字）
 ---
 
 *このシートを埋めて送ってもらえれば、ページを自動生成します。*
+
+> 実装テンプレート: [`ceg_member_template.html`](./ceg_member_template.html) を `ceg/<slug>/index.html` にコピーし、`{{...}}` を置換して使う。
