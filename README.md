@@ -24,6 +24,7 @@ tokusho/
 ├── docs/
 │   └── ceg_member_template.md # CEGメンバー追加用テンプレ
 ├── comments-api/ # CEGコメントAPI（FastAPI+SQLite, systemd常駐）
+├── server-admin/ # apex管理ポータルのAPI（FastAPI, systemd常駐, Basic認証の内側）
 └── photo/        # 元画像素材（配信しない）
 ```
 
@@ -59,6 +60,11 @@ ssh ssh.tokusho.org "cd ~/tokusho && git pull"
 > CEGのコメント機能（`comments-api/`）の `app.py` を変更したときは、API再起動も必要：
 > `ssh ssh.tokusho.org "cd ~/tokusho && git pull && sudo systemctl restart ceg-comments"`
 > 初回セットアップ手順は `comments-api/README.md` を参照。
+
+> apex（tokusho.org）は管理ポータル。Basic認証で保護し、`server-admin/`（FastAPI）が
+> サービスの稼働確認・再起動・ログ閲覧を担う。初回セットアップ（venv / sudoers / systemd /
+> htpasswd / nginx）は `server-admin/README.md` を参照。`app.py` 変更時は
+> `... && sudo systemctl restart tokusho-admin`。
 
 ## サーバー上の構成
 

@@ -1,0 +1,16 @@
+# Tokusho サーバー管理API の systemd ユニット【参考コピー】
+# 実体は /etc/systemd/system/tokusho-admin.service に置く。
+#   sudo cp tokusho-admin.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now tokusho-admin
+[Unit]
+Description=Tokusho Server Admin API (FastAPI)
+After=network.target
+
+[Service]
+User=shodai
+WorkingDirectory=/home/shodai/tokusho/server-admin
+ExecStart=/home/shodai/tokusho/server-admin/venv/bin/uvicorn app:app --host 127.0.0.1 --port 8200
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

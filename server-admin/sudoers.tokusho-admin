@@ -1,0 +1,24 @@
+# /etc/sudoers.d/tokusho-admin
+# 管理API（shodai ユーザーで起動）が「許可サービスの restart とログ閲覧」だけを
+# パスワードなしで実行できるようにする。ブランケットな sudo は与えない。
+#
+# 反映:
+#   sudo cp sudoers.tokusho-admin /etc/sudoers.d/tokusho-admin
+#   sudo chmod 0440 /etc/sudoers.d/tokusho-admin
+#   sudo visudo -cf /etc/sudoers.d/tokusho-admin     # 構文チェック
+#
+# ※ systemctl / journalctl の絶対パスは環境で異なることがある。
+#   `command -v systemctl` / `command -v journalctl` で確認して合わせること。
+#   サービスを追加したら、ここの restart 行と journalctl 行も両方足す。
+
+Cmnd_Alias TOKUSHO_SVC = \
+    /usr/bin/systemctl restart nginx, \
+    /usr/bin/systemctl restart cloudflared, \
+    /usr/bin/systemctl restart ceg-comments, \
+    /usr/bin/systemctl restart tokusho-admin, \
+    /usr/bin/journalctl -u nginx *, \
+    /usr/bin/journalctl -u cloudflared *, \
+    /usr/bin/journalctl -u ceg-comments *, \
+    /usr/bin/journalctl -u tokusho-admin *
+
+shodai ALL=(root) NOPASSWD: TOKUSHO_SVC

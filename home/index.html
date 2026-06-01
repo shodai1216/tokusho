@@ -3,810 +3,259 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shodai'home</title>
+  <title>Tokusho Control</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --c-bg:        #070d14;
-      --c-surface:   #0d1a26;
-      --c-surface2:  #0f2035;
-      --c-border:    rgba(34,211,238,0.10);
-      --c-primary:   #22d3ee;
-      --c-secondary: #0891b2;
-      --c-text:      #e2f0f5;
-      --c-muted:     #5d8a9a;
-      --c-accent:    #67e8f9;
-      --c-lock:      #f87171;
-      --c-lock-dim:  rgba(248,113,113,0.15);
-      --r-card:      18px;
-      --shadow:      0 4px 32px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3);
+      --c-bg:       #070d14;
+      --c-surface:  #0d1a26;
+      --c-surface2: #0f2035;
+      --c-border:   rgba(34,211,238,0.10);
+      --c-primary:  #22d3ee;
+      --c-secondary:#0891b2;
+      --c-text:     #e2f0f5;
+      --c-muted:    #5d8a9a;
+      --c-accent:   #67e8f9;
+      --c-ok:       #34d399;
+      --c-bad:      #f87171;
+      --c-warn:     #fbbf24;
+      --r-card:     16px;
+      --shadow:     0 4px 32px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body { font-family: 'Noto Sans JP', -apple-system, sans-serif; background: var(--c-bg); min-height: 100vh; color: var(--c-text); }
 
-    /* ─── Header ─── */
-    .hero {
-      background: linear-gradient(125deg, #040b12 0%, #071929 52%, #0a2438 100%);
-      border-bottom: 1px solid var(--c-border); position: relative; overflow: hidden;
-    }
-    .hero::after {
-      content: ''; position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 70% 50%, rgba(34,211,238,0.06) 0%, transparent 65%);
-      pointer-events: none;
-    }
-    .hero-inner {
-      max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 62px;
-      display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1;
-    }
+    .hero { background: linear-gradient(125deg, #040b12 0%, #071929 52%, #0a2438 100%); border-bottom: 1px solid var(--c-border); }
+    .hero-inner { max-width: 1080px; margin: 0 auto; padding: 0 24px; height: 62px; display: flex; align-items: center; justify-content: space-between; }
     .brand { display: flex; align-items: center; gap: 10px; }
-    .brand-icon {
-      width: 34px; height: 34px; border-radius: 9px;
-      background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.22);
-      display: flex; align-items: center; justify-content: center; font-size: 17px;
-    }
-    .brand-name { font-family: 'Outfit', sans-serif; font-size: 21px; font-weight: 800; color: #fff; letter-spacing: -0.03em; }
+    .brand-icon { width: 34px; height: 34px; border-radius: 9px; background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.22); display: flex; align-items: center; justify-content: center; font-size: 17px; }
+    .brand-name { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
     .brand-name em { color: var(--c-primary); font-style: normal; }
-    .user-info { display: flex; align-items: center; gap: 8px; }
-    .user-badge-admin {
-      background: rgba(34,211,238,0.12); color: var(--c-primary);
-      border: 1px solid rgba(34,211,238,0.28); border-radius: 20px;
-      padding: 4px 13px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-    }
-    .user-badge-user {
-      background: rgba(34,211,238,0.08); color: var(--c-accent);
-      border: 1px solid rgba(34,211,238,0.2); border-radius: 20px;
-      padding: 4px 13px; font-size: 11px; font-weight: 600;
-    }
-    .btn-logout {
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 20px; padding: 4px 12px; font-size: 11px; color: rgba(255,255,255,0.45);
-      cursor: pointer; transition: background 0.15s, color 0.15s;
-    }
-    .btn-logout:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
-    .btn-header-login {
-      background: rgba(34,211,238,0.1); color: var(--c-primary);
-      border: 1px solid rgba(34,211,238,0.3); border-radius: 20px;
-      padding: 5px 16px; font-size: 12px; font-weight: 700; cursor: pointer;
-      transition: background 0.15s, box-shadow 0.15s; font-family: 'Outfit', sans-serif;
-    }
-    .btn-header-login:hover { background: rgba(34,211,238,0.2); box-shadow: 0 0 16px rgba(34,211,238,0.15); }
+    .clock { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--c-muted); }
 
-    /* ─── Tabs ─── */
-    .tabs-bar {
-      max-width: 1100px; margin: 0 auto; padding: 0 24px;
-      display: flex; gap: 4px; border-bottom: 1px solid var(--c-border);
-    }
-    .tab-btn {
-      background: none; border: none; border-bottom: 2px solid transparent;
-      padding: 14px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
-      color: var(--c-muted); transition: color 0.15s, border-color 0.15s;
-      font-family: 'Noto Sans JP', sans-serif; margin-bottom: -1px;
-    }
-    .tab-btn:hover { color: var(--c-text); }
-    .tab-btn.active { color: var(--c-primary); border-bottom-color: var(--c-primary); }
-    .tab-btn.admin-only { display: none; }
-    .tab-btn.admin-only.visible { display: block; }
+    .main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 18px; }
+    @media (min-width: 860px) { .main { padding: 28px 24px 56px; } .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; } }
 
-    /* ─── Layout ─── */
-    .main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 40px; }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+    .card { background: var(--c-surface); border-radius: var(--r-card); box-shadow: var(--shadow); border: 1px solid var(--c-border); padding: 22px; }
+    .section-label { font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 700; color: var(--c-primary); letter-spacing: 0.1em; text-transform: uppercase; display: flex; align-items: center; gap: 7px; margin-bottom: 16px; }
+    .section-label::before { content: ''; width: 3px; height: 13px; background: linear-gradient(180deg, var(--c-accent), var(--c-secondary)); border-radius: 2px; }
+    .section-label .reload { margin-left: auto; font: inherit; font-size: 11px; text-transform: none; letter-spacing: 0; color: var(--c-primary); background: rgba(34,211,238,0.06); border: 1px solid var(--c-border); border-radius: 8px; padding: 4px 12px; cursor: pointer; }
+    .section-label .reload:hover { background: rgba(34,211,238,0.14); }
 
-    .layout {
-      display: flex; flex-direction: column; gap: 14px;
-    }
-    @media (min-width: 768px) {
-      .main { padding: 32px 24px 48px; }
-      .layout { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
-      .col-left  { display: flex; flex-direction: column; gap: 20px; }
-      .col-right { display: flex; flex-direction: column; gap: 20px; }
-    }
+    /* 公開サイト */
+    .sites { display: flex; flex-direction: column; gap: 10px; }
+    .site { display: flex; align-items: center; gap: 12px; background: var(--c-surface2); border: 1px solid var(--c-border); border-radius: 12px; padding: 12px 14px; text-decoration: none; color: inherit; transition: border-color 0.15s, transform 0.12s; }
+    .site:hover { border-color: rgba(34,211,238,0.3); transform: translateY(-1px); }
+    .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; background: var(--c-muted); box-shadow: 0 0 0 3px rgba(255,255,255,0.02); }
+    .dot.up { background: var(--c-ok); box-shadow: 0 0 8px rgba(52,211,153,0.5); }
+    .dot.down { background: var(--c-bad); box-shadow: 0 0 8px rgba(248,113,113,0.4); }
+    .site-body { flex: 1; min-width: 0; }
+    .site-name { font-weight: 700; font-size: 14px; }
+    .site-url { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--c-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .site-arrow { color: var(--c-muted); font-size: 16px; }
 
-    /* ─── Card ─── */
-    .card {
-      background: var(--c-surface); border-radius: var(--r-card);
-      box-shadow: var(--shadow); border: 1px solid var(--c-border);
-      padding: 24px; animation: cardIn 0.38s ease both;
-    }
-    @keyframes cardIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-    .col-left  > .card:nth-child(1) { animation-delay: 0.04s; }
-    .col-left  > .card:nth-child(2) { animation-delay: 0.10s; }
-    .col-right > .card              { animation-delay: 0.16s; }
+    /* システム情報 */
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .metric { background: var(--c-surface2); border: 1px solid var(--c-border); border-radius: 12px; padding: 13px 14px; }
+    .metric-label { font-size: 10px; color: var(--c-muted); font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 6px; }
+    .metric-value { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; }
+    .metric-sub { font-size: 11px; color: var(--c-muted); margin-top: 2px; }
+    .bar { height: 6px; background: rgba(34,211,238,0.08); border-radius: 4px; margin-top: 8px; overflow: hidden; }
+    .bar > span { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--c-secondary), var(--c-accent)); transition: width 0.5s; }
+    .bar > span.hot { background: linear-gradient(90deg, #b45309, var(--c-warn)); }
 
-    .section-label {
-      font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 700; color: var(--c-primary);
-      letter-spacing: 0.1em; text-transform: uppercase;
-      display: flex; align-items: center; gap: 7px; margin-bottom: 18px;
-    }
-    .section-label::before {
-      content: ''; width: 3px; height: 13px;
-      background: linear-gradient(180deg, var(--c-accent), var(--c-secondary));
-      border-radius: 2px; flex-shrink: 0;
-    }
+    /* サービス */
+    .svc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .svc-table th { text-align: left; color: var(--c-muted); font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; padding: 0 8px 10px; border-bottom: 1px solid var(--c-border); }
+    .svc-table td { padding: 10px 8px; border-bottom: 1px solid rgba(34,211,238,0.04); vertical-align: middle; }
+    .svc-table tr:last-child td { border-bottom: none; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 6px; padding: 3px 9px; font-size: 11px; font-weight: 700; }
+    .badge.active { background: rgba(52,211,153,0.1); color: var(--c-ok); }
+    .badge.inactive, .badge.failed, .badge.unknown { background: rgba(248,113,113,0.1); color: var(--c-bad); }
+    .svc-actions { display: flex; gap: 6px; justify-content: flex-end; }
+    .btn-sm { padding: 5px 11px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.15s; border: 1px solid var(--c-border); background: rgba(34,211,238,0.05); color: var(--c-primary); }
+    .btn-sm:hover { background: rgba(34,211,238,0.14); }
+    .btn-sm.warn { color: var(--c-warn); border-color: rgba(251,191,36,0.2); background: rgba(251,191,36,0.06); }
+    .btn-sm.warn:hover { background: rgba(251,191,36,0.16); }
+    .btn-sm:disabled { opacity: 0.4; cursor: default; }
 
-    /* ─── Status ─── */
-    .state-card { text-align: center; }
-    .state-icon-wrap {
-      width: 110px; height: 110px; margin: 0 auto 14px;
-      position: relative; display: flex; align-items: center; justify-content: center;
-    }
-    .state-icon { font-size: 70px; line-height: 1; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5)); position: relative; z-index: 1; transition: filter 0.3s; }
-    .state-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent; transition: border-color 0.4s, box-shadow 0.4s; }
-    .state-ring.unlocked { border-color: var(--c-primary); box-shadow: 0 0 0 5px rgba(34,211,238,0.08); animation: pulseRing 2.2s ease-in-out infinite; }
-    @keyframes pulseRing { 0%,100% { box-shadow: 0 0 0 5px rgba(34,211,238,0.08); } 50% { box-shadow: 0 0 0 16px rgba(34,211,238,0.03); } }
-    .state-text { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.02em; transition: color 0.3s; }
-    .state-text.locked           { color: var(--c-lock); }
-    .state-text.unlocked         { color: var(--c-primary); }
-    .state-text.error            { color: #fbbf24; }
-    .state-text.unknown          { color: var(--c-muted); }
-    .state-text.unlock_requested { color: var(--c-secondary); }
-    .state-text.lock_requested   { color: #a78bfa; }
-    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .detail-item { background: var(--c-surface2); border: 1px solid var(--c-border); border-radius: 12px; padding: 12px; text-align: left; }
-    .detail-label { font-size: 10px; color: var(--c-muted); font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 5px; }
-    .detail-value { font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; }
-    .detail-value.door-closed    { color: var(--c-secondary); }
-    .detail-value.door-open      { color: #fb923c; }
-    .detail-value.thumb-locked   { color: var(--c-lock); }
-    .detail-value.thumb-unlocked { color: var(--c-primary); }
-    .detail-value.unknown        { color: var(--c-muted); }
-    .updated-info { font-size: 11px; color: var(--c-muted); }
-    .refresh-bar { width: 100%; height: 2px; background: rgba(34,211,238,0.08); border-radius: 2px; margin-top: 12px; overflow: hidden; }
-    .refresh-bar-fill { height: 100%; border-radius: 2px; width: 100%; transition: width 1s linear; background: linear-gradient(90deg, var(--c-secondary), var(--c-accent)); }
+    .err { color: var(--c-bad); font-size: 12px; padding: 8px 2px; }
+    .muted { color: var(--c-muted); font-size: 12px; }
 
-    /* ─── Buttons ─── */
-    .btn-row { display: flex; gap: 12px; }
-    .btn {
-      flex: 1; padding: 18px 10px; border: none; border-radius: 14px;
-      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer;
-      transition: transform 0.12s, box-shadow 0.15s, opacity 0.2s;
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-    }
-    .btn:active { transform: scale(0.94); }
-    .btn:disabled { opacity: 0.25; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-    .btn-lock { background: var(--c-lock-dim); color: var(--c-lock); border: 1px solid rgba(248,113,113,0.2); box-shadow: 0 2px 12px rgba(248,113,113,0.1); }
-    .btn-lock:not(:disabled):hover { box-shadow: 0 5px 24px rgba(248,113,113,0.2); transform: translateY(-2px); }
-    .btn-unlock { background: rgba(34,211,238,0.08); color: var(--c-primary); border: 1px solid rgba(34,211,238,0.2); box-shadow: 0 2px 12px rgba(34,211,238,0.08); }
-    .btn-unlock:not(:disabled):hover { box-shadow: 0 5px 24px rgba(34,211,238,0.18); transform: translateY(-2px); }
-    .btn .icon  { font-size: 26px; }
-    .btn .label { font-size: 13px; letter-spacing: 0.02em; }
-    .cmd-sent { margin-top: 12px; font-size: 12px; color: var(--c-primary); text-align: center; min-height: 18px; font-weight: 500; }
+    /* ログモーダル */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(4,11,18,0.82); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+    .modal-overlay.open { display: flex; }
+    .modal-card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 18px; width: min(820px, 100%); max-height: 86vh; display: flex; flex-direction: column; box-shadow: 0 32px 80px rgba(0,0,0,0.6); }
+    .modal-head { display: flex; align-items: center; gap: 10px; padding: 16px 20px; border-bottom: 1px solid var(--c-border); }
+    .modal-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 15px; }
+    .modal-title em { color: var(--c-primary); font-style: normal; }
+    .modal-close { margin-left: auto; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--c-muted); border-radius: 8px; padding: 4px 12px; font-size: 12px; cursor: pointer; }
+    .modal-close:hover { color: var(--c-text); background: rgba(255,255,255,0.1); }
+    .log-pre { margin: 0; padding: 16px 20px; overflow: auto; font-family: 'DM Mono', monospace; font-size: 12px; line-height: 1.6; color: var(--c-accent); white-space: pre-wrap; word-break: break-word; }
 
-    /* ─── OTP ─── */
-    .otp-toggle-wrap { margin-top: 16px; text-align: center; display: none; }
-    .otp-toggle-wrap.visible { display: block; }
-    .btn-otp-toggle {
-      background: none; border: 1px dashed rgba(34,211,238,0.2); border-radius: 10px;
-      padding: 7px 20px; font-size: 12px; font-weight: 600; color: var(--c-muted); cursor: pointer; transition: all 0.15s;
-    }
-    .btn-otp-toggle:hover { border-color: var(--c-primary); color: var(--c-primary); background: rgba(34,211,238,0.05); }
-    .otp-form { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--c-border); animation: expandIn 0.18s ease; }
-    .otp-form.open { display: block; }
-    @keyframes expandIn { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform:none; } }
-    .otp-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-    .otp-field-full { grid-column: 1 / -1; }
-    .field-label { font-size: 10px; color: var(--c-muted); font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 5px; }
-    .field-input {
-      width: 100%; padding: 10px 12px; border: 1px solid var(--c-border); border-radius: 9px;
-      font-size: 14px; font-family: inherit; outline: none; background: var(--c-surface2); color: var(--c-text);
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .field-input::placeholder { color: var(--c-muted); }
-    .field-input:focus { border-color: var(--c-primary); background: rgba(34,211,238,0.04); box-shadow: 0 0 0 3px rgba(34,211,238,0.08); }
-    .btn-create-otp {
-      width: 100%; padding: 12px; border: none; border-radius: 11px;
-      background: linear-gradient(135deg, #065f7a, var(--c-secondary));
-      color: #fff; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700;
-      cursor: pointer; transition: opacity 0.15s, box-shadow 0.15s; box-shadow: 0 3px 16px rgba(8,145,178,0.3);
-    }
-    .btn-create-otp:hover { opacity: 0.88; box-shadow: 0 5px 22px rgba(8,145,178,0.4); }
-    .otp-result { display: none; margin-top: 12px; padding: 14px 16px; background: rgba(34,211,238,0.05); border-radius: 12px; border: 1px solid rgba(34,211,238,0.15); }
-    .otp-result.visible { display: block; }
-    .otp-cred { font-family: 'DM Mono', monospace; font-size: 13px; margin: 4px 0; word-break: break-all; color: var(--c-accent); }
-    .otp-cred strong { color: var(--c-muted); font-family: 'Noto Sans JP', sans-serif; font-size: 11px; }
-    .otp-note { font-size: 11px; color: var(--c-muted); margin-top: 8px; }
-    .btn-copy { margin-top: 9px; padding: 6px 14px; border: 1px solid rgba(34,211,238,0.2); border-radius: 7px; background: rgba(34,211,238,0.06); font-size: 12px; font-weight: 600; cursor: pointer; color: var(--c-primary); transition: all 0.15s; }
-    .btn-copy:hover { background: rgba(34,211,238,0.12); border-color: var(--c-primary); }
-
-    /* ─── Log Table ─── */
-    .log-card { min-height: 200px; }
-    table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    th { text-align: left; color: var(--c-muted); font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; padding: 0 8px 10px; border-bottom: 1px solid var(--c-border); }
-    td { padding: 9px 8px; border-bottom: 1px solid rgba(34,211,238,0.04); vertical-align: middle; }
-    tbody tr:hover td { background: rgba(34,211,238,0.03); transition: background 0.1s; }
-    tr:last-child td { border-bottom: none; }
-    .td-state { font-weight: 700; }
-    .td-state.locked           { color: var(--c-lock); }
-    .td-state.unlocked         { color: var(--c-primary); }
-    .td-state.error            { color: #fbbf24; }
-    .td-state.unknown          { color: var(--c-muted); }
-    .td-state.unlock_requested { color: var(--c-secondary); }
-    .td-state.lock_requested   { color: #a78bfa; }
-    .log-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; flex-shrink: 0; }
-    .dot-locked           { background: var(--c-lock); }
-    .dot-unlocked         { background: var(--c-primary); }
-    .dot-error            { background: #fbbf24; }
-    .dot-unknown          { background: var(--c-muted); }
-    .dot-unlock_requested { background: var(--c-secondary); }
-    .dot-lock_requested   { background: #a78bfa; }
-    .log-empty { font-size: 13px; color: var(--c-muted); text-align: center; padding: 28px 0; }
-    .actor-tag { display: inline-block; background: rgba(34,211,238,0.08); color: var(--c-secondary); border-radius: 5px; padding: 2px 7px; font-size: 10px; font-weight: 700; }
-    .actor-tag.admin { background: rgba(167,139,250,0.1); color: #a78bfa; }
-
-    /* ─── Admin Panel ─── */
-    .admin-section { margin-bottom: 28px; }
-    .admin-table-wrap { overflow-x: auto; }
-    .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .admin-table th { text-align: left; color: var(--c-muted); font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; padding: 0 10px 10px; border-bottom: 1px solid var(--c-border); }
-    .admin-table td { padding: 11px 10px; border-bottom: 1px solid rgba(34,211,238,0.04); vertical-align: middle; }
-    .admin-table tbody tr:hover td { background: rgba(34,211,238,0.03); }
-    .admin-table tr:last-child td { border-bottom: none; }
-    .badge-expired { display: inline-block; background: rgba(248,113,113,0.12); color: var(--c-lock); border-radius: 5px; padding: 2px 7px; font-size: 10px; font-weight: 700; }
-    .badge-active  { display: inline-block; background: rgba(34,211,238,0.08); color: var(--c-primary); border-radius: 5px; padding: 2px 7px; font-size: 10px; font-weight: 700; }
-    .btn-danger {
-      padding: 5px 12px; border: 1px solid rgba(248,113,113,0.25); border-radius: 7px;
-      background: rgba(248,113,113,0.08); color: var(--c-lock); font-size: 11px; font-weight: 700;
-      cursor: pointer; transition: all 0.15s;
-    }
-    .btn-danger:hover { background: rgba(248,113,113,0.18); border-color: var(--c-lock); }
-    .admin-reload {
-      padding: 6px 14px; border: 1px solid var(--c-border); border-radius: 8px;
-      background: rgba(34,211,238,0.06); color: var(--c-primary); font-size: 12px; font-weight: 600;
-      cursor: pointer; transition: all 0.15s; margin-left: auto; display: block;
-    }
-    .admin-reload:hover { background: rgba(34,211,238,0.12); }
-
-    /* ─── Modal ─── */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(4,11,18,0.82);
-      backdrop-filter: blur(8px) saturate(1.2);
-      display: flex; align-items: center; justify-content: center; z-index: 100;
-      animation: fadeIn 0.15s ease;
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .modal-card {
-      background: var(--c-surface); border-radius: 24px; padding: 34px 28px; width: 340px;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(34,211,238,0.1);
-      animation: slideUp 0.22s cubic-bezier(0.34, 1.5, 0.64, 1);
-    }
-    @keyframes slideUp { from { transform: translateY(28px) scale(0.95); opacity: 0; } to { transform: none; opacity: 1; } }
-    .modal-icon  { font-size: 42px; text-align: center; margin-bottom: 10px; }
-    .modal-title { font-family: 'Outfit', sans-serif; font-size: 21px; font-weight: 800; text-align: center; margin-bottom: 4px; color: var(--c-text); }
-    .modal-sub   { font-size: 12px; color: var(--c-muted); text-align: center; margin-bottom: 24px; }
-    .modal-input {
-      width: 100%; padding: 13px 16px; border: 1px solid var(--c-border); border-radius: 12px;
-      font-size: 15px; font-family: inherit; margin-bottom: 10px; outline: none;
-      background: var(--c-surface2); color: var(--c-text); transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .modal-input::placeholder { color: var(--c-muted); }
-    .modal-input:focus { border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(34,211,238,0.1); }
-    .auth-error { font-size: 12px; color: var(--c-lock); text-align: center; min-height: 16px; margin-bottom: 12px; font-weight: 500; }
-    .modal-btns { display: flex; gap: 10px; }
-    .btn-modal-cancel {
-      flex: 1; padding: 13px; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
-      background: rgba(255,255,255,0.04); font-size: 14px; font-weight: 600; cursor: pointer;
-      color: var(--c-muted); font-family: 'Outfit', sans-serif; transition: background 0.15s, color 0.15s;
-    }
-    .btn-modal-cancel:hover { background: rgba(255,255,255,0.08); color: var(--c-text); }
-    .btn-modal-submit {
-      flex: 2; padding: 13px; border: none; border-radius: 12px;
-      background: linear-gradient(135deg, #065f7a, var(--c-secondary));
-      color: #fff; font-size: 14px; font-weight: 700; font-family: 'Outfit', sans-serif; cursor: pointer;
-      box-shadow: 0 4px 18px rgba(8,145,178,0.35); transition: opacity 0.15s, box-shadow 0.15s;
-    }
-    .btn-modal-submit:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
-    .btn-modal-submit:not(:disabled):hover { opacity: 0.9; box-shadow: 0 6px 24px rgba(8,145,178,0.45); }
+    .footer-note { text-align: center; font-size: 11px; color: var(--c-muted); opacity: 0.6; margin-top: 6px; }
   </style>
 </head>
 <body>
-
   <header class="hero">
     <div class="hero-inner">
       <div class="brand">
-        <div class="brand-icon">🏠</div>
-        <div class="brand-name">Shodai<em>'home</em></div>
+        <div class="brand-icon">🛠️</div>
+        <div class="brand-name">Tokusho <em>Control</em></div>
       </div>
-      <div class="user-info" id="userInfo"></div>
+      <div class="clock" id="clock">—</div>
     </div>
   </header>
 
-  <nav style="background:var(--c-surface);border-bottom:1px solid var(--c-border)">
-    <div class="tabs-bar">
-      <button class="tab-btn active" onclick="switchTab('home')">ホーム</button>
-      <button class="tab-btn" onclick="switchTab('logs')">ログ</button>
-      <button class="tab-btn admin-only" id="tabAdmin" onclick="switchTab('admin')">管理</button>
-    </div>
-  </nav>
-
   <main class="main">
+    <div class="card">
+      <div class="section-label">公開サイト</div>
+      <div class="sites" id="sites"></div>
+    </div>
 
-    <!-- ── ホームタブ ── -->
-    <div class="tab-panel active" id="panel-home">
-      <div class="layout">
-        <div class="col-left">
+    <div class="grid2">
+      <div class="card">
+        <div class="section-label">サーバー状況 <button class="reload" onclick="loadStatus()">更新</button></div>
+        <div class="metrics" id="metrics"><p class="muted">読み込み中…</p></div>
+      </div>
 
-          <div class="card state-card">
-            <div class="section-label">現在の状態</div>
-            <div class="state-icon-wrap">
-              <span class="state-icon" id="stateIcon">⏳</span>
-              <div class="state-ring" id="stateRing"></div>
-            </div>
-            <div class="state-text unknown" id="stateText">読み込み中...</div>
-            <div class="detail-grid">
-              <div class="detail-item">
-                <div class="detail-label">ドア</div>
-                <div class="detail-value unknown" id="doorValue">-</div>
-              </div>
-              <div class="detail-item">
-                <div class="detail-label">サムターン</div>
-                <div class="detail-value unknown" id="thumbValue">-</div>
-              </div>
-            </div>
-            <div class="updated-info" id="updatedInfo">-</div>
-            <div class="refresh-bar"><div class="refresh-bar-fill" id="refreshBar"></div></div>
-          </div>
-
-          <div class="card">
-            <div class="section-label">操作</div>
-            <div class="btn-row">
-              <button class="btn btn-lock"   id="btnLock"   onclick="doLock()"   disabled>
-                <span class="icon">🔒</span><span class="label">施錠</span>
-              </button>
-              <button class="btn btn-unlock" id="btnUnlock" onclick="doUnlock()" disabled>
-                <span class="icon">🔓</span><span class="label">解錠</span>
-              </button>
-            </div>
-            <div class="cmd-sent" id="cmdSent"></div>
-
-            <div class="otp-toggle-wrap" id="otpToggleWrap">
-              <button class="btn-otp-toggle" onclick="toggleOtpForm()">＋ ワンタイムパスワードを発行</button>
-            </div>
-            <div class="otp-form" id="otpForm">
-              <div class="otp-fields">
-                <div class="otp-field-full">
-                  <div class="field-label">表示名（誰に発行するか）</div>
-                  <input type="text" id="otpName" class="field-input" placeholder="例: 田中さん">
-                </div>
-                <div>
-                  <div class="field-label">有効期限（時間）</div>
-                  <input type="number" id="otpHours" class="field-input" placeholder="例: 24" min="1" max="720">
-                </div>
-                <div>
-                  <div class="field-label">使用回数上限</div>
-                  <input type="number" id="otpUses" class="field-input" placeholder="例: 3" min="1">
-                </div>
-              </div>
-              <button class="btn-create-otp" onclick="createOtp()">発行する</button>
-              <div class="otp-result" id="otpResult"></div>
-            </div>
-          </div>
-
-        </div>
-        <div class="col-right">
-          <div class="card log-card">
-            <div class="section-label">直近のログ</div>
-            <div id="logWrapHome"><p class="log-empty">読み込み中...</p></div>
-          </div>
-        </div>
+      <div class="card">
+        <div class="section-label">サービス</div>
+        <div id="svcWrap"><p class="muted">読み込み中…</p></div>
       </div>
     </div>
 
-    <!-- ── ログタブ ── -->
-    <div class="tab-panel" id="panel-logs">
-      <div class="card log-card">
-        <div class="section-label" style="justify-content:space-between">
-          <span style="display:flex;align-items:center;gap:7px">
-            <span style="width:3px;height:13px;background:linear-gradient(180deg,var(--c-accent),var(--c-secondary));border-radius:2px"></span>
-            動作ログ（直近100件）
-          </span>
-          <button class="admin-reload" onclick="loadFullLogs()">更新</button>
-        </div>
-        <div id="logWrapFull"><p class="log-empty">読み込み中...</p></div>
-      </div>
-    </div>
-
-    <!-- ── 管理タブ ── -->
-    <div class="tab-panel" id="panel-admin">
-
-      <div class="card admin-section">
-        <div class="section-label" style="justify-content:space-between">
-          <span style="display:flex;align-items:center;gap:7px">
-            <span style="width:3px;height:13px;background:linear-gradient(180deg,var(--c-accent),var(--c-secondary));border-radius:2px"></span>
-            ユーザー管理
-          </span>
-          <button class="admin-reload" onclick="loadUsers()">更新</button>
-        </div>
-        <div class="admin-table-wrap">
-          <div id="userTableWrap"><p class="log-empty">読み込み中...</p></div>
-        </div>
-      </div>
-
-      <div class="card admin-section">
-        <div class="section-label" style="justify-content:space-between">
-          <span style="display:flex;align-items:center;gap:7px">
-            <span style="width:3px;height:13px;background:linear-gradient(180deg,var(--c-accent),var(--c-secondary));border-radius:2px"></span>
-            セッション管理
-          </span>
-          <button class="admin-reload" onclick="loadSessions()">更新</button>
-        </div>
-        <div class="admin-table-wrap">
-          <div id="sessionTableWrap"><p class="log-empty">読み込み中...</p></div>
-        </div>
-      </div>
-
-    </div>
-
+    <div class="footer-note">© Tokusho Control — 本人専用（Basic認証）</div>
   </main>
 
-  <!-- ── Auth Modal ── -->
-  <div id="authModal" class="modal-overlay" style="display:none" onclick="onOverlayClick(event)">
+  <div class="modal-overlay" id="logModal" onclick="if(event.target===this)closeLogs()">
     <div class="modal-card">
-      <div class="modal-icon">🔓</div>
-      <div class="modal-title">解錠認証</div>
-      <div class="modal-sub">IDとパスワードを入力してください</div>
-      <input type="text"     id="authId"   class="modal-input" placeholder="ログインID"
-             autocomplete="username"         onkeydown="onModalKey(event)">
-      <input type="password" id="authPass" class="modal-input" placeholder="パスワード"
-             autocomplete="current-password" onkeydown="onModalKey(event)">
-      <div class="auth-error" id="authError"></div>
-      <div class="modal-btns">
-        <button class="btn-modal-cancel" onclick="closeModal()">キャンセル</button>
-        <button class="btn-modal-submit" id="btnAuthSubmit" onclick="submitLogin()">ログイン</button>
+      <div class="modal-head">
+        <span class="modal-title">ログ: <em id="logSvc">—</em></span>
+        <button class="modal-close" onclick="closeLogs()">閉じる</button>
       </div>
+      <pre class="log-pre" id="logBody">…</pre>
     </div>
   </div>
 
   <script>
-    const REFRESH_SEC = 60;
-    let countdown = REFRESH_SEC;
-    const auth = { mode: 'none', displayName: '', token: '' };
+    var API = '/admin/api';
 
-    const STATE_MAP = {
-      locked:           { icon: '🔒', label: '施錠中',         cls: 'locked'           },
-      unlocked:         { icon: '🔓', label: '解錠中',         cls: 'unlocked'         },
-      lock_requested:   { icon: '🔒', label: '施錠リクエスト', cls: 'lock_requested'   },
-      unlock_requested: { icon: '🔓', label: '解錠リクエスト', cls: 'unlock_requested' },
-      lock_error:       { icon: '⚠️', label: '施錠エラー',     cls: 'error'            },
-      unlock_error:     { icon: '⚠️', label: '解錠エラー',     cls: 'error'            },
-      sensor_error:     { icon: '⚠️', label: 'センサーエラー', cls: 'error'            },
-      unknown:          { icon: '❓', label: '不明',           cls: 'unknown'          },
-    };
-    const DOOR_MAP  = { closed:{label:'閉',cls:'door-closed'}, open:{label:'開',cls:'door-open'}, unknown:{label:'不明',cls:'unknown'} };
-    const THUMB_MAP = { locked:{label:'施錠位置',cls:'thumb-locked'}, unlocked:{label:'解錠位置',cls:'thumb-unlocked'}, unknown:{label:'不明',cls:'unknown'} };
+    // 公開サイト（リンク + 到達性ドット）
+    var SITES = [
+      { name: 'ポートフォリオ',   url: 'https://portfolio.tokusho.org' },
+      { name: 'CEG 飲み部図鑑',   url: 'https://ceg.tokusho.org' },
+      { name: 'SmartLock',        url: 'https://home.tokusho.org' },
+      { name: 'SSH（URL経由）',   url: 'https://ssh.tokusho.org' }
+    ];
 
-    // ── タブ ────────────────────────────────────────────
-    let currentTab = 'home';
-    function switchTab(tab) {
-      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-      document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-      event.target.classList.add('active');
-      document.getElementById('panel-' + tab).classList.add('active');
-      currentTab = tab;
-      if (tab === 'logs')  loadFullLogs();
-      if (tab === 'admin') { loadUsers(); loadSessions(); }
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function fmtBytes(n) {
+      if (n == null) return '-';
+      var u = ['B','KB','MB','GB','TB']; var i = 0;
+      while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+      return n.toFixed(n < 10 && i > 0 ? 1 : 0) + u[i];
     }
 
-    // ── 初期化 ─────────────────────────────────────────
-    async function init() {
-      const token = localStorage.getItem('slToken');
-      if (token) {
-        try {
-          const res = await api('GET', '/api/session/' + token);
-          if (res) {
-            setAuthState(res.userId === 'admin' ? 'admin' : 'user', res.displayName, token);
-          } else {
-            localStorage.removeItem('slToken');
-            setAuthState('none', '', '');
-          }
-        } catch(e) { setAuthState('none', '', ''); }
-      } else {
-        setAuthState('none', '', '');
-      }
-      refresh();
-    }
-
-    function setAuthState(mode, displayName, token) {
-      auth.mode = mode; auth.displayName = displayName; auth.token = token;
-      renderUserInfo();
-      document.getElementById('otpToggleWrap').classList.toggle('visible', mode !== 'none');
-      document.getElementById('tabAdmin').classList.toggle('visible', mode === 'admin');
-      if (mode === 'none') {
-        document.getElementById('otpForm').classList.remove('open');
-        document.getElementById('otpResult').className = 'otp-result';
-      }
-    }
-
-    function renderUserInfo() {
-      const el = document.getElementById('userInfo');
-      if (auth.mode === 'admin') {
-        el.innerHTML = '<span class="user-badge-admin">管理者</span>'
-          + '<button class="btn-logout" onclick="logout()">ログアウト</button>';
-      } else if (auth.mode === 'user') {
-        el.innerHTML = '<span class="user-badge-user">' + esc(auth.displayName) + '</span>'
-          + '<button class="btn-logout" onclick="logout()">ログアウト</button>';
-      } else {
-        el.innerHTML = '<button class="btn-header-login" onclick="openModal()">ログイン</button>';
-      }
-    }
-
-    function logout() {
-      localStorage.removeItem('slToken');
-      setAuthState('none', '', '');
-      if (currentTab === 'admin') switchTab('home');
-    }
-
-    // ── 状態更新 ────────────────────────────────────────
-    async function refresh() {
-      try {
-        const [status, logs] = await Promise.all([
-          api('GET', '/api/status'),
-          api('GET', '/api/logs?limit=20'),
-        ]);
-        if (status) onStatus(status);
-        if (logs)   onLogs(logs, 'logWrapHome');
-      } catch(e) {}
-    }
-
-    function onStatus(data) {
-      const s = STATE_MAP[data.state] || STATE_MAP['unknown'];
-      document.getElementById('stateIcon').textContent = s.icon;
-      const txt = document.getElementById('stateText');
-      txt.textContent = s.label; txt.className = 'state-text ' + s.cls;
-      document.getElementById('stateRing').className = 'state-ring' + (data.state === 'unlocked' ? ' unlocked' : '');
-      const door  = DOOR_MAP[data.door]   || DOOR_MAP['unknown'];
-      const thumb = THUMB_MAP[data.thumb] || THUMB_MAP['unknown'];
-      const dv = document.getElementById('doorValue');
-      dv.textContent = door.label; dv.className = 'detail-value ' + door.cls;
-      const tv = document.getElementById('thumbValue');
-      tv.textContent = thumb.label; tv.className = 'detail-value ' + thumb.cls;
-      document.getElementById('updatedInfo').textContent = '最終更新: ' + (data.lastUpdated || '-');
-      document.getElementById('btnLock').disabled   = false;
-      document.getElementById('btnUnlock').disabled = false;
-      resetCountdown();
-    }
-
-    function onLogs(rows, targetId) {
-      const wrap = document.getElementById(targetId);
-      if (!rows || rows.length === 0) { wrap.innerHTML = '<p class="log-empty">ログなし</p>'; return; }
-      const html = rows.map(function(r) {
-        const st  = STATE_MAP[r.state] || STATE_MAP['unknown'];
-        const dot = 'dot-' + (STATE_MAP[r.state] ? r.state : 'unknown');
-        const door = DOOR_MAP[r.door] || DOOR_MAP['unknown'];
-        const actorCls = r.userId === 'admin' ? 'actor-tag admin' : 'actor-tag';
-        const actor = r.userId
-          ? '<span class="' + actorCls + '">' + esc(r.userId) + '</span>'
-          : '<span style="color:var(--c-muted)">—</span>';
-        return '<tr>'
-          + '<td style="color:var(--c-muted);white-space:nowrap;font-size:11px">' + esc(r.time) + '</td>'
-          + '<td class="td-state ' + st.cls + '"><span class="log-dot ' + dot + '"></span>' + st.label + '</td>'
-          + '<td style="color:var(--c-muted)">' + door.label + '</td>'
-          + '<td>' + actor + '</td>'
-          + '</tr>';
+    function renderSites() {
+      var wrap = document.getElementById('sites');
+      wrap.innerHTML = SITES.map(function (s, i) {
+        return '<a class="site" href="' + esc(s.url) + '" target="_blank" rel="noopener">'
+          + '<span class="dot" id="dot' + i + '"></span>'
+          + '<span class="site-body"><span class="site-name">' + esc(s.name) + '</span>'
+          + '<span class="site-url">' + esc(s.url.replace(/^https?:\/\//, '')) + '</span></span>'
+          + '<span class="site-arrow">↗</span></a>';
       }).join('');
-      wrap.innerHTML = '<table><thead><tr><th>時刻</th><th>状態</th><th>ドア</th><th>操作者</th></tr></thead><tbody>' + html + '</tbody></table>';
-    }
-
-    async function loadFullLogs() {
-      try {
-        const logs = await api('GET', '/api/logs?limit=100');
-        onLogs(logs, 'logWrapFull');
-      } catch(e) {}
-    }
-
-    // ── 施錠・解錠 ──────────────────────────────────────
-    async function doLock() {
-      setBtns(false); showMsg('施錠コマンドを送信中...');
-      try {
-        await api('POST', '/api/lock');
-        showMsg('✓ 送信済み（60秒以内にESP32が実行）');
-        setTimeout(function() { showMsg(''); setBtns(true); }, 6000);
-      } catch(e) { showMsg('送信失敗: ' + e); setBtns(true); }
-    }
-
-    async function doUnlock() {
-      if (auth.mode === 'none') { openModal(); return; }
-      setBtns(false);
-      try {
-        const res = await api('POST', '/api/unlock', { token: auth.token });
-        if (res.needLogin) {
-          localStorage.removeItem('slToken');
-          setAuthState('none', '', '');
-          setBtns(true); openModal();
-        } else { onUnlockResult(res); }
-      } catch(e) { showMsg('送信失敗: ' + e); setBtns(true); }
-    }
-
-    function onUnlockResult(res) {
-      setBtns(true);
-      if (res.success) {
-        showMsg('✓ ' + esc(res.displayName) + ' として送信（60秒以内に実行）');
-        setTimeout(function() { showMsg(''); }, 8000);
-      } else { showMsg('エラー: ' + esc(res.message)); }
-    }
-
-    // ── ログインモーダル ────────────────────────────────
-    function openModal() {
-      document.getElementById('authId').value = '';
-      document.getElementById('authPass').value = '';
-      document.getElementById('authError').textContent = '';
-      document.getElementById('btnAuthSubmit').disabled = false;
-      document.getElementById('btnAuthSubmit').textContent = 'ログイン';
-      document.getElementById('authModal').style.display = 'flex';
-      setTimeout(function() { document.getElementById('authId').focus(); }, 50);
-    }
-    function closeModal() { document.getElementById('authModal').style.display = 'none'; }
-    function onOverlayClick(e) { if (e.target.id === 'authModal') closeModal(); }
-    function onModalKey(e) { if (e.key === 'Enter') submitLogin(); if (e.key === 'Escape') closeModal(); }
-
-    async function submitLogin() {
-      const id   = document.getElementById('authId').value.trim();
-      const pass = document.getElementById('authPass').value;
-      const errEl = document.getElementById('authError');
-      if (!id || !pass) { errEl.textContent = 'IDとパスワードを入力してください'; return; }
-      const btn = document.getElementById('btnAuthSubmit');
-      btn.disabled = true; btn.textContent = '確認中...'; errEl.textContent = '';
-      try {
-        const res = await api('POST', '/api/login', { userId: id, password: pass });
-        btn.disabled = false; btn.textContent = 'ログイン';
-        if (!res.success) {
-          errEl.textContent = res.message;
-          document.getElementById('authPass').value = '';
-          document.getElementById('authPass').focus();
-          return;
-        }
-        localStorage.setItem('slToken', res.token);
-        setAuthState(res.isAdmin ? 'admin' : 'user', res.displayName, res.token);
-        closeModal();
-        setBtns(false);
-        const unlockRes = await api('POST', '/api/unlock', { token: res.token });
-        onUnlockResult(unlockRes);
-      } catch(e) {
-        btn.disabled = false; btn.textContent = 'ログイン';
-        errEl.textContent = '通信エラー: ' + e;
-      }
-    }
-
-    // ── OTP ─────────────────────────────────────────────
-    function toggleOtpForm() { document.getElementById('otpForm').classList.toggle('open'); }
-
-    async function createOtp() {
-      const name  = document.getElementById('otpName').value.trim();
-      const hours = document.getElementById('otpHours').value;
-      const uses  = document.getElementById('otpUses').value;
-      if (!name) { alert('表示名を入力してください'); return; }
-      try {
-        const res = await api('POST', '/api/otp', {
-          displayName: name,
-          expiresInHours: hours ? parseInt(hours) : null,
-          maxUses: uses ? parseInt(uses) : null,
-          sessionToken: auth.token,
-        });
-        const el = document.getElementById('otpResult');
-        if (!res.success) {
-          el.className = 'otp-result visible';
-          el.innerHTML = '<span style="color:var(--c-lock)">' + esc(res.message) + '</span>';
-          return;
-        }
-        const expStr  = res.expiresAt ? new Date(res.expiresAt).toLocaleString('ja-JP') : '無制限';
-        const useStr  = res.maxUses   ? res.maxUses + '回' : '無制限';
-        const copyText = "Shodai'home ゲストアクセス情報\nID: " + res.userId + "\nPW: " + res.password
-          + "\n有効期限: " + expStr + "\n使用回数: " + useStr;
-        el.className = 'otp-result visible';
-        el.dataset.copyText = copyText;
-        el.innerHTML = '<div class="otp-cred"><strong>ID: </strong>' + esc(res.userId) + '</div>'
-          + '<div class="otp-cred"><strong>PW: </strong>' + esc(res.password) + '</div>'
-          + '<div class="otp-note">有効期限: ' + esc(expStr) + '　／　使用回数: ' + esc(useStr) + '</div>'
-          + '<button class="btn-copy" onclick="copyOtpCred()">📋 コピー</button>';
-        document.getElementById('otpName').value = '';
-        document.getElementById('otpHours').value = '';
-        document.getElementById('otpUses').value = '';
-      } catch(e) { alert('エラー: ' + e); }
-    }
-
-    function copyOtpCred() {
-      const text = document.getElementById('otpResult').dataset.copyText || '';
-      navigator.clipboard.writeText(text).then(function() {
-        const btn = document.querySelector('#otpResult .btn-copy');
-        btn.textContent = '✓ コピーしました';
-        setTimeout(function() { btn.textContent = '📋 コピー'; }, 2000);
+      // 到達性チェック（no-cors: 成功=到達、失敗=未到達のざっくり判定）
+      SITES.forEach(function (s, i) {
+        fetch(s.url, { mode: 'no-cors', cache: 'no-store' })
+          .then(function () { document.getElementById('dot' + i).className = 'dot up'; })
+          .catch(function () { document.getElementById('dot' + i).className = 'dot down'; });
       });
     }
 
-    // ── 管理画面 ────────────────────────────────────────
-    async function loadUsers() {
-      const wrap = document.getElementById('userTableWrap');
-      try {
-        const res = await api('GET', '/api/admin/users?token=' + auth.token);
-        if (!res.success) { wrap.innerHTML = '<p class="log-empty">' + esc(res.message) + '</p>'; return; }
-        if (!res.users.length) { wrap.innerHTML = '<p class="log-empty">ユーザーなし</p>'; return; }
-        const rows = res.users.map(function(u) {
-          const badge = u.expired
-            ? '<span class="badge-expired">期限切れ</span>'
-            : '<span class="badge-active">有効</span>';
-          const uses = u.maxUses !== null
-            ? u.useCount + ' / ' + u.maxUses + '回'
-            : '無制限';
-          return '<tr>'
-            + '<td><span style="font-family:DM Mono,monospace;font-size:12px;color:var(--c-accent)">' + esc(u.id) + '</span></td>'
-            + '<td>' + esc(u.displayName) + '</td>'
-            + '<td>' + badge + '</td>'
-            + '<td style="color:var(--c-muted);font-size:12px">' + esc(u.expiresAt) + '</td>'
-            + '<td style="color:var(--c-muted);font-size:12px">' + uses + '</td>'
-            + '<td><button class="btn-danger" onclick="deleteUser(\'' + esc(u.id) + '\')">削除</button></td>'
-            + '</tr>';
-        }).join('');
-        wrap.innerHTML = '<table class="admin-table"><thead><tr>'
-          + '<th>ID</th><th>表示名</th><th>状態</th><th>有効期限</th><th>使用回数</th><th></th>'
-          + '</tr></thead><tbody>' + rows + '</tbody></table>';
-      } catch(e) { wrap.innerHTML = '<p class="log-empty">読み込みエラー</p>'; }
+    function renderMetrics(sys) {
+      var el = document.getElementById('metrics');
+      if (!sys) { el.innerHTML = '<p class="err">取得できませんでした</p>'; return; }
+      var diskPct = sys.disk ? sys.disk.pct : 0;
+      var memPct = sys.mem ? sys.mem.pct : 0;
+      el.innerHTML =
+        '<div class="metric"><div class="metric-label">稼働時間</div><div class="metric-value">' + esc(sys.uptime || '-') + '</div></div>'
+        + '<div class="metric"><div class="metric-label">負荷 (1/5/15m)</div><div class="metric-value" style="font-size:14px">' + esc(sys.load || '-') + '</div></div>'
+        + '<div class="metric"><div class="metric-label">ディスク /</div><div class="metric-value">' + diskPct + '%</div>'
+        + (sys.disk ? '<div class="metric-sub">' + fmtBytes(sys.disk.used) + ' / ' + fmtBytes(sys.disk.total) + '</div>' : '')
+        + '<div class="bar"><span class="' + (diskPct >= 85 ? 'hot' : '') + '" style="width:' + diskPct + '%"></span></div></div>'
+        + '<div class="metric"><div class="metric-label">メモリ</div><div class="metric-value">' + memPct + '%</div>'
+        + (sys.mem ? '<div class="metric-sub">' + fmtBytes(sys.mem.used) + ' / ' + fmtBytes(sys.mem.total) + '</div>' : '')
+        + '<div class="bar"><span class="' + (memPct >= 85 ? 'hot' : '') + '" style="width:' + memPct + '%"></span></div></div>';
     }
 
-    async function deleteUser(userId) {
-      if (!confirm(userId + ' を削除しますか？')) return;
-      try {
-        await api('POST', '/api/admin/users/delete', { token: auth.token, userId: userId });
-        loadUsers();
-      } catch(e) { alert('削除失敗: ' + e); }
+    function renderServices(list) {
+      var wrap = document.getElementById('svcWrap');
+      if (!list || !list.length) { wrap.innerHTML = '<p class="muted">サービスなし</p>'; return; }
+      var rows = list.map(function (s) {
+        var active = s.active === 'active';
+        var cls = active ? 'active' : (s.active || 'unknown');
+        return '<tr>'
+          + '<td><span style="font-weight:700">' + esc(s.label) + '</span><br><span class="muted" style="font-family:DM Mono,monospace;font-size:11px">' + esc(s.id) + '</span></td>'
+          + '<td><span class="badge ' + cls + '">' + esc(s.active) + '</span></td>'
+          + '<td><div class="svc-actions">'
+          + '<button class="btn-sm" onclick="showLogs(\'' + esc(s.id) + '\')">ログ</button>'
+          + '<button class="btn-sm warn" onclick="restartSvc(\'' + esc(s.id) + '\',this)">再起動</button>'
+          + '</div></td></tr>';
+      }).join('');
+      wrap.innerHTML = '<table class="svc-table"><thead><tr><th>サービス</th><th>状態</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>';
     }
 
-    async function loadSessions() {
-      const wrap = document.getElementById('sessionTableWrap');
-      try {
-        const res = await api('GET', '/api/admin/sessions?token=' + auth.token);
-        if (!res.success) { wrap.innerHTML = '<p class="log-empty">' + esc(res.message) + '</p>'; return; }
-        if (!res.sessions.length) { wrap.innerHTML = '<p class="log-empty">セッションなし</p>'; return; }
-        const rows = res.sessions.map(function(s) {
-          const badge = s.expired
-            ? '<span class="badge-expired">期限切れ</span>'
-            : '<span class="badge-active">有効</span>';
-          return '<tr>'
-            + '<td><span style="font-family:DM Mono,monospace;font-size:12px;color:var(--c-muted)">' + esc(s.token) + '</span></td>'
-            + '<td>' + esc(s.displayName) + '</td>'
-            + '<td>' + badge + '</td>'
-            + '<td style="color:var(--c-muted);font-size:12px">' + esc(s.expiresAt) + '</td>'
-            + '<td><button class="btn-danger" onclick="deleteSession(\'' + esc(s.fullToken) + '\')">削除</button></td>'
-            + '</tr>';
-        }).join('');
-        wrap.innerHTML = '<table class="admin-table"><thead><tr>'
-          + '<th>トークン</th><th>ユーザー</th><th>状態</th><th>期限</th><th></th>'
-          + '</tr></thead><tbody>' + rows + '</tbody></table>';
-      } catch(e) { wrap.innerHTML = '<p class="log-empty">読み込みエラー</p>'; }
+    function loadStatus() {
+      document.getElementById('metrics').innerHTML = '<p class="muted">読み込み中…</p>';
+      fetch(API + '/status', { cache: 'no-store' })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (d) { renderMetrics(d.system); renderServices(d.services); })
+        .catch(function () {
+          document.getElementById('metrics').innerHTML = '<p class="err">管理APIに接続できません（tokusho-admin 起動 / nginx /admin/api/ を確認）</p>';
+          document.getElementById('svcWrap').innerHTML = '<p class="err">—</p>';
+        });
     }
 
-    async function deleteSession(token) {
-      if (!confirm('このセッションを削除しますか？')) return;
-      try {
-        await api('POST', '/api/admin/sessions/delete', { token: auth.token, targetToken: token });
-        loadSessions();
-      } catch(e) { alert('削除失敗: ' + e); }
+    function restartSvc(id, btn) {
+      if (!confirm(id + ' を再起動しますか？')) return;
+      btn.disabled = true; btn.textContent = '…';
+      fetch(API + '/restart', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ service: id })
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          if (!res.ok || !res.j.ok) alert('再起動失敗: ' + (res.j.detail || res.j.message || '不明'));
+          loadStatus();
+        })
+        .catch(function (e) { alert('通信エラー: ' + e); })
+        .finally(function () { btn.disabled = false; btn.textContent = '再起動'; });
     }
 
-    // ── API ─────────────────────────────────────────────
-    async function api(method, path, body) {
-      const opts = { method, headers: { 'Content-Type': 'application/json' } };
-      if (body) opts.body = JSON.stringify(body);
-      const res = await fetch(path, opts);
-      if (!res.ok) throw new Error(res.status);
-      return res.json();
+    function showLogs(id) {
+      document.getElementById('logSvc').textContent = id;
+      document.getElementById('logBody').textContent = '読み込み中…';
+      document.getElementById('logModal').classList.add('open');
+      fetch(API + '/logs?service=' + encodeURIComponent(id) + '&lines=120', { cache: 'no-store' })
+        .then(function (r) { if (!r.ok) return r.json().then(function (j) { throw new Error(j.detail || r.status); }); return r.json(); })
+        .then(function (d) { document.getElementById('logBody').textContent = (d.lines || []).join('\n') || '(ログなし)'; })
+        .catch(function (e) { document.getElementById('logBody').textContent = 'ログ取得失敗: ' + e.message; });
     }
+    function closeLogs() { document.getElementById('logModal').classList.remove('open'); }
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLogs(); });
 
-    function setBtns(v) {
-      document.getElementById('btnLock').disabled   = !v;
-      document.getElementById('btnUnlock').disabled = !v;
-    }
-    function showMsg(s) { document.getElementById('cmdSent').textContent = s; }
-    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    function resetCountdown() { countdown = REFRESH_SEC; }
-    function tick() {
-      countdown--;
-      document.getElementById('refreshBar').style.width = (countdown / REFRESH_SEC * 100) + '%';
-      if (countdown <= 0) { refresh(); countdown = REFRESH_SEC; }
-    }
+    function tickClock() { document.getElementById('clock').textContent = new Date().toLocaleString('ja-JP'); }
 
-    init();
-    setInterval(tick, 1000);
+    renderSites();
+    loadStatus();
+    tickClock();
+    setInterval(tickClock, 1000);
+    setInterval(loadStatus, 30000);
   </script>
 </body>
 </html>
