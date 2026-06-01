@@ -1,0 +1,17 @@
+# CEG コメントAPI の systemd ユニット【参考コピー】
+# 実体は /etc/systemd/system/ceg-comments.service に置く。
+#   sudo cp ceg-comments.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now ceg-comments
+[Unit]
+Description=CEG Comments API (FastAPI)
+After=network.target
+
+[Service]
+User=shodai
+WorkingDirectory=/home/shodai/tokusho/comments-api
+Environment=COMMENTS_DB=/home/shodai/data/ceg_comments.db
+ExecStart=/home/shodai/tokusho/comments-api/venv/bin/uvicorn app:app --host 127.0.0.1 --port 8100
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

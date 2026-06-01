@@ -123,6 +123,30 @@
     .video-wrap video { width: 100%; display: block; max-height: 500px; object-fit: contain; }
     .video-label { position: absolute; top: 12px; left: 12px; background: color-mix(in srgb, var(--col) 85%, transparent); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; }
 
+    /* ─── コメント ─── */
+    .comments { margin-top: 36px; }
+    .comments-head { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; color: var(--col); margin-bottom: 14px; display: flex; align-items: baseline; gap: 8px; }
+    .comments-count { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); font-weight: 500; }
+    .comment-form { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 20px; }
+    .comment-form .c-nick, .comment-form .c-msg { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-family: inherit; font-size: 14px; margin-bottom: 10px; }
+    .comment-form .c-msg { resize: vertical; min-height: 76px; line-height: 1.6; }
+    .comment-form .c-nick:focus, .comment-form .c-msg:focus { outline: none; border-color: var(--col); }
+    .comment-form .c-nick::placeholder, .comment-form .c-msg::placeholder { color: var(--muted); }
+    .c-hp { position: absolute !important; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+    .c-row { display: flex; align-items: center; gap: 12px; }
+    .c-submit { background: var(--col); color: #fff; border: none; border-radius: 999px; padding: 9px 22px; font-weight: 700; font-size: 14px; cursor: pointer; transition: opacity 0.15s; }
+    .c-submit:hover { opacity: 0.85; }
+    .c-submit:disabled { opacity: 0.5; cursor: default; }
+    .c-status { font-size: 12px; color: var(--muted); min-height: 1em; }
+    .c-status.error { color: #f87171; }
+    .comment-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .comment-list li { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+    .comment-list .c-empty { background: transparent; border: none; padding: 6px 2px; color: var(--muted); font-size: 13px; }
+    .c-item-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+    .c-item-nick { font-weight: 700; font-size: 14px; color: var(--col); word-break: break-word; }
+    .c-item-time { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-left: auto; }
+    .c-item-msg { font-size: 14px; line-height: 1.7; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+
     .footer-note { text-align: center; margin-top: 48px; font-size: 11px; color: var(--muted); opacity: 0.5; }
 
     /* ─── スマホ対応 ─── */
@@ -237,6 +261,22 @@
 
       </div>
     </div>
+
+    <!-- コメント欄（slug は comments.js が URL から自動判定） -->
+    <section class="comments" id="comments">
+      <div class="comments-head">コメント <span class="comments-count" id="cCount"></span></div>
+      <form class="comment-form" id="cForm" autocomplete="off">
+        <input class="c-nick" id="cNick" type="text" maxlength="30" placeholder="ニックネーム" required>
+        <textarea class="c-msg" id="cMsg" maxlength="500" placeholder="メッセージを書く…" required></textarea>
+        <input class="c-hp" id="cHp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div class="c-row">
+          <button class="c-submit" type="submit">送信</button>
+          <span class="c-status" id="cStatus" role="status" aria-live="polite"></span>
+        </div>
+      </form>
+      <ul class="comment-list" id="cList"></ul>
+    </section>
+
     <div class="footer-note">© Cheese Egg Garden 飲み部図鑑 — 非公式・ネタサイトです</div>
   </main>
 
@@ -252,5 +292,6 @@
       });
     }, 300);
   </script>
+  <script src="/comments.js?v=1" defer></script>
 </body>
 </html>
