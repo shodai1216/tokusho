@@ -62,7 +62,10 @@ def notify_discord(title: str, body: str = ""):
         data = json.dumps({"content": f"```\n{msg}\n```"}).encode()
         req = urllib.request.Request(
             DISCORD_WEBHOOK, data=data,
-            headers={"Content-Type": "application/json"},
+            headers={
+                "Content-Type": "application/json",
+                "User-Agent": "TokushoBot/1.0",
+            },
         )
         urllib.request.urlopen(req, timeout=5)
     except Exception:
