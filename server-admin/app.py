@@ -375,6 +375,87 @@ def _webhook_deploy():
         run(["sudo", "-n", "systemctl", "restart", "ceg-comments"], timeout=30)
 
 
+# ── バーオーダー管理 ──────────────────────────────────────────────────────────
+# nginx 設定例:
+#   location /bar/api/ { proxy_pass http://127.0.0.1:8200/bar/; }
+#   location /bar/admin.html { auth_basic "Bar Admin"; auth_basic_user_file /etc/nginx/.htpasswd; }
+
+BAR_ORDERS_DB = os.environ.get("BAR_ORDERS_DB", "/home/shodai/data/bar_orders.db")
+BAR_STATUSES  = {"pending", "making", "done", "cancelled"}
+
+
+def _bar_db():
+    con = sqlite3.connect(BAR_ORDERS_DB)
+    con.row_factory = sqlite3.Row
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS bar_orders (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            name       TEXT NOT NULL,
+            cocktail   TEXT NOT NULL,
+            note       TEXT DEFAULT '',
+            status     TEXT DEFAULT 'pending',
+            created_at TEXT DEFAULT (datetime('now', 'localtime'))
+        )
+    """)
+    con.commit()
+    return con
+
+
+class BarOrderIn(BaseModel):
+    name: str
+    cocktail: str
+    note: str = ""
+
+
+class BarStatusIn(BaseModel):
+    status: str
+
+
+@app.post("/bar/order", status_code=201)
+def bar_order(body: BarOrderIn):
+    name     = body.name.strip()[:50]
+    cocktail = body.cocktail.strip()[:100]
+    note     = body.note.strip()[:200]
+    if not name or not cocktail:
+        raise HTTPException(400, "name and cocktail are required")
+    with _bar_db() as con:
+        cur = con.execute(
+            "INSERT INTO bar_orders (name, cocktail, note) VALUES (?,?,?)",
+            (name, cocktail, note),
+        )
+        order_id = cur.lastrowid
+    threading.Thread(
+        target=notify_discord,
+        args=(f"🍹 バー注文 #{order_id}", f"{cocktail}  /  {name}" + (f"\n備考: {note}" if note else "")),
+        daemon=True,
+    ).start()
+    return {"ok": True, "id": order_id}
+
+
+@app.get("/bar/orders")
+def bar_orders():
+    with _bar_db() as con:
+        rows = con.execute(
+            "SELECT id, name, cocktail, note, status, created_at "
+            "FROM bar_orders ORDER BY id DESC LIMIT 200"
+        ).fetchall()
+    return {"orders": [dict(r) for r in rows]}
+
+
+@app.post("/bar/orders/{order_id}/status")
+def bar_order_status(order_id: int, body: BarStatusIn):
+    if body.status not in BAR_STATUSES:
+        raise HTTPException(400, f"status must be one of {sorted(BAR_STATUSES)}")
+    with _bar_db() as con:
+        r = con.execute(
+            "UPDATE bar_orders SET status=? WHERE id=?", (body.status, order_id)
+        )
+        if r.rowcount == 0:
+            raise HTTPException(404, "order not found")
+        con.commit()
+    return {"ok": True}
+
+
 @app.post("/webhook")
 async def github_webhook(request: Request, background_tasks: BackgroundTasks):
     """GitHub Webhook エンドポイント（nginx で auth_basic off）。
