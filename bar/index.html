@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>おうちバー — Tokusho</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-bg:      #070d14;
+      --c-surface: #0d1a26;
+      --c-surf2:   #0f2035;
+      --c-border:  rgba(34,211,238,0.10);
+      --c-primary: #22d3ee;
+      --c-sec:     #0891b2;
+      --c-text:    #e2f0f5;
+      --c-muted:   #5d8a9a;
+      --c-accent:  #67e8f9;
+      --c-ok:      #34d399;
+      --c-bad:     #f87171;
+      --c-warn:    #fbbf24;
+      --c-gold:    #f59e0b;
+      --r-card:    16px;
+      --shadow:    0 4px 32px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Noto Sans JP', -apple-system, sans-serif; background: var(--c-bg); min-height: 100vh; color: var(--c-text); }
+
+    /* ── Header ── */
+    .hero { background: linear-gradient(125deg,#040b12 0%,#071929 52%,#0a2438 100%); border-bottom: 1px solid var(--c-border); position: sticky; top: 0; z-index: 50; }
+    .hero-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand-icon { width: 34px; height: 34px; border-radius: 9px; background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.25); display: flex; align-items: center; justify-content: center; font-size: 17px; }
+    .brand-name { font-family: 'Outfit',sans-serif; font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -.02em; }
+    .brand-name em { color: var(--c-gold); font-style: normal; }
+    .mgmt-link { font-family: 'Outfit',sans-serif; font-size: 12px; font-weight: 700; color: var(--c-muted); border: 1px solid var(--c-border); border-radius: 8px; padding: 5px 12px; text-decoration: none; transition: all .15s; }
+    .mgmt-link:hover { color: var(--c-primary); border-color: rgba(34,211,238,.3); background: rgba(34,211,238,.06); }
+
+    /* ── Filters ── */
+    .filters { max-width: 1200px; margin: 0 auto; padding: 18px 16px 10px; display: flex; flex-direction: column; gap: 10px; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+    .f-label { font-family: 'Outfit',sans-serif; font-size: 10px; font-weight: 700; color: var(--c-muted); letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; margin-right: 2px; }
+
+    .chip { font-family: 'Outfit',sans-serif; font-size: 12px; font-weight: 700; padding: 5px 13px; border-radius: 20px; border: 1px solid var(--c-border); background: rgba(34,211,238,.04); color: var(--c-muted); cursor: pointer; transition: all .15s; white-space: nowrap; }
+    .chip:hover { border-color: rgba(34,211,238,.3); color: var(--c-text); }
+    .chip.on { background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.4); color: var(--c-gold); }
+
+    .ck { display: inline-flex; align-items: center; gap: 5px; font-family: 'Outfit',sans-serif; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--c-border); background: rgba(34,211,238,.04); color: var(--c-muted); cursor: pointer; transition: all .15s; white-space: nowrap; }
+    .ck input { display: none; }
+    .ck:has(input:checked) { background: rgba(34,211,238,.12); border-color: rgba(34,211,238,.4); color: var(--c-primary); }
+
+    .search-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    input[type=search], select.sort-sel {
+      background: var(--c-surf2); border: 1px solid var(--c-border); border-radius: 10px;
+      color: var(--c-text); padding: 8px 14px; font-size: 13px; font-family: inherit; outline: none; transition: border-color .15s;
+    }
+    input[type=search] { flex: 1; min-width: 200px; }
+    input[type=search]:focus, select.sort-sel:focus { border-color: rgba(34,211,238,.4); }
+    select.sort-sel { cursor: pointer; }
+    .res-count { font-size: 12px; color: var(--c-muted); white-space: nowrap; }
+
+    /* ── Grid ── */
+    .card-grid { max-width: 1200px; margin: 0 auto; padding: 14px 16px 56px; display: grid; grid-template-columns: repeat(auto-fill,minmax(296px,1fr)); gap: 16px; }
+
+    .card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-card); box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; transition: border-color .15s, transform .12s; }
+    .card:hover { border-color: rgba(34,211,238,.22); transform: translateY(-2px); }
+
+    .thumb { position: relative; width: 100%; padding-top: 50%; background: var(--c-surf2); flex-shrink: 0; overflow: hidden; }
+    .thumb-img { position: absolute; inset: 0; background-size: cover; background-position: center; transition: opacity .4s; opacity: 0; }
+    .thumb-img.loaded { opacity: 1; }
+    .thumb-ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg,#0a1f32,#0d2a44); }
+    .thumb-ph::after { content: '🍹'; font-size: 38px; opacity: .18; }
+    .thumb-ph.noimg::after { content: '—'; font-size: 20px; color: var(--c-muted); opacity: .4; }
+
+    .card-body { padding: 15px; display: flex; flex-direction: column; gap: 9px; flex: 1; }
+    .title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .card-name { font-family: 'Outfit',sans-serif; font-size: 17px; font-weight: 800; line-height: 1.3; }
+    .card-price { font-family: 'DM Mono',monospace; font-size: 14px; color: var(--c-gold); white-space: nowrap; flex-shrink: 0; padding-top: 2px; }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .tag { display: inline-block; padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 700; font-family: 'Outfit',sans-serif; border: 1px solid; }
+    .tag-base  { background: rgba(245,158,11,.08); border-color: rgba(245,158,11,.22); color: #fbbf24; }
+    .tag-method{ background: rgba(103,232,249,.07); border-color: rgba(103,232,249,.18); color: var(--c-accent); }
+    .tag-short { background: rgba(167,139,250,.08); border-color: rgba(167,139,250,.2); color: #c4b5fd; }
+    .tag-long  { background: rgba(52,211,153,.07); border-color: rgba(52,211,153,.2); color: #6ee7b7; }
+    .tag-soda  { background: rgba(34,211,238,.08); border-color: rgba(34,211,238,.2); color: var(--c-primary); }
+    .tag-sweet { background: rgba(245,158,11,.08); border-color: rgba(245,158,11,.2); color: var(--c-warn); }
+    .tag-med   { background: rgba(52,211,153,.07); border-color: rgba(52,211,153,.2); color: #6ee7b7; }
+    .tag-dry   { background: rgba(248,113,113,.08); border-color: rgba(248,113,113,.2); color: #fca5a5; }
+    .tag-noalc { background: rgba(52,211,153,.1); border-color: rgba(52,211,153,.3); color: var(--c-ok); }
+    .tag-abv   { background: rgba(255,255,255,.03); border-color: rgba(255,255,255,.08); color: var(--c-muted); }
+
+    .card-ings { font-size: 12px; color: var(--c-muted); line-height: 1.75; }
+    .card-ings strong { color: var(--c-text); font-weight: 700; }
+    .opt-ing { opacity: .6; }
+
+    .card-actions { display: flex; gap: 7px; margin-top: auto; padding-top: 2px; align-items: center; }
+    .btn-order { flex: 1; padding: 9px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid rgba(245,158,11,.3); background: rgba(245,158,11,.08); color: var(--c-gold); transition: all .15s; font-family: 'Outfit','Noto Sans JP',sans-serif; }
+    .btn-order:hover { background: rgba(245,158,11,.18); border-color: rgba(245,158,11,.5); }
+    .btn-copy { padding: 9px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid var(--c-border); background: rgba(34,211,238,.04); color: var(--c-muted); transition: all .15s; font-family: inherit; }
+    .btn-copy:hover { color: var(--c-primary); border-color: rgba(34,211,238,.25); background: rgba(34,211,238,.08); }
+    .src-link { font-size: 10px; color: var(--c-muted); text-decoration: none; }
+    .src-link:hover { color: var(--c-primary); }
+
+    .empty { grid-column: 1/-1; text-align: center; padding: 72px 20px; color: var(--c-muted); }
+    .empty-icon { font-size: 52px; opacity: .2; display: block; margin-bottom: 14px; }
+
+    /* ── Order Modal ── */
+    .overlay { position: fixed; inset: 0; background: rgba(4,11,18,.88); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+    .overlay.open { display: flex; }
+    .modal { background: var(--c-surface); border: 1px solid rgba(245,158,11,.22); border-radius: 20px; width: min(460px,100%); box-shadow: 0 32px 80px rgba(0,0,0,.6); overflow: hidden; }
+    .modal-head { display: flex; align-items: center; padding: 17px 22px; border-bottom: 1px solid var(--c-border); background: rgba(245,158,11,.04); }
+    .modal-title { font-family: 'Outfit',sans-serif; font-weight: 800; font-size: 15px; }
+    .modal-title em { color: var(--c-gold); font-style: normal; }
+    .modal-close { margin-left: auto; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); color: var(--c-muted); border-radius: 8px; padding: 4px 12px; font-size: 12px; cursor: pointer; }
+    .modal-close:hover { color: var(--c-text); }
+    .modal-body { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+    .modal-cocktail { font-family: 'Outfit',sans-serif; font-size: 21px; font-weight: 800; color: var(--c-gold); text-align: center; }
+    .modal-price { font-family: 'DM Mono',monospace; font-size: 13px; color: var(--c-muted); text-align: center; margin-top: -10px; }
+    .form-grp { display: flex; flex-direction: column; gap: 6px; }
+    .form-lbl { font-size: 10px; font-weight: 700; color: var(--c-muted); letter-spacing: .08em; text-transform: uppercase; font-family: 'Outfit',sans-serif; }
+    .form-inp { background: var(--c-surf2); border: 1px solid var(--c-border); border-radius: 10px; color: var(--c-text); padding: 11px 14px; font-size: 14px; font-family: inherit; outline: none; transition: border-color .15s; }
+    .form-inp:focus { border-color: rgba(245,158,11,.5); }
+    .btn-submit { width: 100%; padding: 13px; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; border: 1px solid rgba(245,158,11,.4); background: rgba(245,158,11,.12); color: var(--c-gold); transition: all .15s; font-family: 'Outfit','Noto Sans JP',sans-serif; }
+    .btn-submit:hover:not(:disabled) { background: rgba(245,158,11,.22); }
+    .btn-submit:disabled { opacity: .5; cursor: default; }
+
+    /* ── Toast ── */
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--c-surface); border: 1px solid rgba(52,211,153,.3); border-radius: 12px; padding: 12px 22px; font-size: 14px; font-weight: 700; color: var(--c-ok); box-shadow: var(--shadow); z-index: 200; transition: transform .3s cubic-bezier(.34,1.56,.64,1); pointer-events: none; white-space: nowrap; }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.err { border-color: rgba(248,113,113,.3); color: var(--c-bad); }
+
+    .footer { max-width: 1200px; margin: 0 auto; padding: 0 16px 32px; text-align: center; font-size: 11px; color: var(--c-muted); opacity: .55; }
+    @media (max-width:600px) { .hero-inner,.filters,.card-grid { padding-left:12px; padding-right:12px; } }
+  </style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <a class="brand" href="#">
+      <div class="brand-icon">🍹</div>
+      <div class="brand-name">おうち<em>バー</em></div>
+    </a>
+    <a class="mgmt-link" href="/bar/admin.html">バーテンダー</a>
+  </div>
+</header>
+
+<section class="filters">
+  <div class="filter-row">
+    <span class="f-label">ベース</span>
+    <div id="bases" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+  </div>
+  <div class="filter-row">
+    <label class="ck"><input type="checkbox" id="f-carbonated" /> 炭酸</label>
+    <label class="ck"><input type="checkbox" id="f-noncarbonated" /> 無炭酸</label>
+    <label class="ck"><input type="checkbox" id="f-short" /> ショート</label>
+    <label class="ck"><input type="checkbox" id="f-long" /> ロング</label>
+    <label class="ck"><input type="checkbox" id="f-sweet" /> 甘口</label>
+    <label class="ck"><input type="checkbox" id="f-medium" /> 中口</label>
+    <label class="ck"><input type="checkbox" id="f-dry" /> 辛口</label>
+  </div>
+  <div class="search-row filter-row">
+    <input type="search" id="search" placeholder="名前・材料で検索…" />
+    <select class="sort-sel" id="sort">
+      <option value="name">名前順</option>
+      <option value="abv-asc">度数 ↑</option>
+      <option value="abv-desc">度数 ↓</option>
+      <option value="price">価格 ↑</option>
+    </select>
+    <span class="res-count" id="resCount"></span>
+  </div>
+</section>
+
+<main id="list" class="card-grid"></main>
+
+<template id="card-tpl">
+  <article class="card">
+    <div class="thumb">
+      <div class="thumb-ph"></div>
+      <div class="thumb-img"></div>
+    </div>
+    <div class="card-body">
+      <div class="title-row">
+        <h2 class="card-name"></h2>
+        <span class="card-price"></span>
+      </div>
+      <div class="tags"></div>
+      <div class="card-ings"></div>
+      <div class="card-actions">
+        <button class="btn-order">注文する</button>
+        <button class="btn-copy">コピー</button>
+        <a class="src-link" href="#" target="_blank" rel="noopener" style="display:none">画像元</a>
+      </div>
+    </div>
+  </article>
+</template>
+
+<!-- 注文モーダル -->
+<div class="overlay" id="orderModal" onclick="if(event.target===this)closeOrder()">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">🍹 <em>注文</em></span>
+      <button class="modal-close" onclick="closeOrder()">閉じる</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-cocktail" id="oName"></div>
+      <div class="modal-price" id="oPrice"></div>
+      <div class="form-grp">
+        <div class="form-lbl">お名前 / 席</div>
+        <input type="text" class="form-inp" id="oPersonName" placeholder="例: Shodai" maxlength="50" autocomplete="name" />
+      </div>
+      <div class="form-grp">
+        <div class="form-lbl">備考（任意）</div>
+        <input type="text" class="form-inp" id="oNote" placeholder="例: 氷少なめ" maxlength="200" />
+      </div>
+      <button class="btn-submit" id="btnSubmit" onclick="submitOrder()">注文する</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<footer class="footer">
+  <small>おうちバー — レシピは参考値。画像はWikipedia/Wikimediaより自動取得。</small>
+</footer>
+
+<script>
+// ─── メニューデータ ──────────────────────────────────────────────────────────
+
+const BAR_API = '/api';
+
+const JUICE_WORDS = ['オレンジ','グレフル','パイン','レモン','ライム','クランベリー','グレープ'];
+function extractJuices(ings) {
+  const found = new Set();
+  (ings||[]).forEach(i => JUICE_WORDS.forEach(j => { if ((i.name||'').includes(j)) found.add(j); }));
+  return Array.from(found);
+}
+function item(o) {
+  const carb = typeof o.carbonated === 'boolean'
+    ? o.carbonated
+    : /(ソーダ|炭酸|トニック|ジンジャ|コーラ)/.test(JSON.stringify(o.ingredients||''));
+  const style = o.style || (o.method === 'シェイク' && !carb ? 'ショート' : 'ロング');
+  const priceYen = o.priceYen || (style === 'ショート' ? 300 : 350);
+  const juices = o.juices || extractJuices(o.ingredients);
+  const tags = Array.from(new Set([...(o.tags||[]), o.base, o.taste, style, ...(juices||[])]));
+  return { ...o, style, priceYen, juices, tags, carbonated: carb };
+}
+
+const MENU = [
+  // ── ラムベース ──
+  item({ name:'ラムコーク', base:'ラム', method:'ビルド', taste:'甘口', abv:10, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:30,unit:'ml'},{name:'コーラ',amount:100,unit:'ml'},{name:'レモン(好み)',amount:'1~2',unit:'tsp',optional:true}], tags:['コーラ','シトラス'] }),
+  item({ name:'キューバリブレ', base:'ラム', method:'ビルド', taste:'甘口', abv:10, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:30,unit:'ml'},{name:'コーラ',amount:100,unit:'ml'},{name:'ライム',amount:'1~2',unit:'tsp'}], tags:['コーラ','ライム'] }),
+  item({ name:'ラムバック', base:'ラム', method:'ビルド', taste:'中口', abv:15, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:40,unit:'ml'},{name:'ジンジャエール',amount:100,unit:'ml'}], tags:['ジンジャー'] }),
+  item({ name:'ラムトニック', base:'ラム', method:'ビルド', taste:'中口', abv:15, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:40,unit:'ml'},{name:'トニック',amount:100,unit:'ml'},{name:'レモン(好み)',amount:'1~2',unit:'tsp',optional:true}], tags:['トニック','レモン'] }),
+  item({ name:'ラムソーダ', base:'ラム', method:'ビルド', taste:'中口', abv:15, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:40,unit:'ml'},{name:'ソーダ',amount:100,unit:'ml'},{name:'シロップ(好み)',amount:'1~2',unit:'tsp',optional:true},{name:'レモン(好み)',amount:'1~2',unit:'tsp',optional:true}], tags:['ソーダ','レモン'] }),
+  item({ name:'ラム・カシス', base:'ラム', method:'ビルド', taste:'甘口', abv:30, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'ラム',amount:30,unit:'ml'},{name:'カシス',amount:30,unit:'ml'}], tags:['リキュール'] }),
+  item({ name:'ラム・カシスソーダ', base:'ラム', method:'ビルド', taste:'甘口', abv:15, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:30,unit:'ml'},{name:'カシス',amount:30,unit:'ml'},{name:'ソーダ',amount:30,unit:'ml'}], tags:['ソーダ','カシス'] }),
+  item({ name:'ラムサンライズ', base:'ラム', method:'ビルド', taste:'甘口', abv:15, carbonated:false, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:30,unit:'ml'},{name:'オレンジ',amount:100,unit:'ml'},{name:'グレナデンシロップ',amount:10,unit:'ml'}], juices:['オレンジ'], tags:['オレンジ','グレナデン'] }),
+  item({ name:'トロピカルラムパンチ', base:'ラム', method:'ビルド', taste:'甘口', abv:12, carbonated:false, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:45,unit:'ml'},{name:'パイン',amount:45,unit:'ml'},{name:'オレンジ',amount:45,unit:'ml'},{name:'グレナデンシロップ',amount:10,unit:'ml'}], juices:['オレンジ','パイン'], tags:['パイン','オレンジ'] }),
+  item({ name:'ソルクバーノ', base:'ラム', method:'ビルド', taste:'甘口', abv:10, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:30,unit:'ml'},{name:'グレフル',amount:45,unit:'ml'},{name:'トニック',amount:'適量',unit:''}], juices:['グレフル'], tags:['グレフル','トニック'] }),
+  item({ name:'ホットバタードラム(カウ)', base:'ラム', method:'ビルド', taste:'甘口', abv:null, carbonated:false, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:45,unit:'ml'},{name:'バター',amount:10,unit:'g'},{name:'砂糖',amount:1,unit:'tsp'},{name:'熱湯(牛乳)',amount:'適量',unit:''}], tags:['ホット'] }),
+  item({ name:'モヒート', base:'ラム', method:'ビルド', taste:'辛口', abv:null, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:45,unit:'ml'},{name:'砂糖',amount:1,unit:'tsp'},{name:'ライム',amount:'1/6',unit:''},{name:'ミント',amount:'適量',unit:''},{name:'炭酸水',amount:'適量',unit:''}], tags:['ミント','ライム','ソーダ'] }),
+  item({ name:'ダイキリ', base:'ラム', method:'シェイク', taste:'中口', abv:20, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'ラム',amount:40,unit:'ml'},{name:'ライム',amount:25,unit:'ml'},{name:'シロップ',amount:15,unit:'ml'}], tags:['ライム'] }),
+  item({ name:'XYZ', base:'ラム', method:'シェイク', taste:'中口', abv:25, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'ラム',amount:30,unit:'ml'},{name:'コアントロー',amount:15,unit:'ml'},{name:'レモン',amount:15,unit:'ml'},{name:'シロップ(好み)',amount:'1~2',unit:'tsp',optional:true}], tags:['レモン','コアントロー'] }),
+  item({ name:'バカルディ・カクテル', base:'ラム', method:'シェイク', taste:'甘口', abv:14, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'ラム',amount:30,unit:'ml'},{name:'オレンジ',amount:30,unit:'ml'},{name:'グレフル',amount:30,unit:'ml'},{name:'グレナデンシロップ',amount:10,unit:'ml'}], juices:['オレンジ','グレフル'], tags:['グレナデン'] }),
+  item({ name:'ブルーハワイ', base:'ラム', method:'シェイク', taste:'甘口', abv:15, carbonated:false, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:30,unit:'ml'},{name:'ブルーキュラソー',amount:15,unit:'ml'},{name:'パイン',amount:30,unit:'ml'},{name:'レモン',amount:15,unit:'ml'}], juices:['パイン'], tags:['ブルー'] }),
+
+  // ── テキーラベース ──
+  item({ name:'テキーラサンライズ', base:'テキーラ', method:'ビルド', taste:'甘口', abv:15, carbonated:false, style:'ロング', priceYen:350,
+    ingredients:[{name:'テキーラ',amount:30,unit:'ml'},{name:'オレンジ',amount:100,unit:'ml'},{name:'グレナデンシロップ',amount:10,unit:'ml'}], juices:['オレンジ'], tags:['オレンジ','グレナデン'] }),
+  item({ name:'エルディアブロ', base:'テキーラ', method:'ビルド', taste:'中口', abv:15, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'テキーラ',amount:30,unit:'ml'},{name:'レモン',amount:10,unit:'ml'},{name:'カシス',amount:10,unit:'ml'},{name:'ジンジャエール',amount:90,unit:'ml'}], tags:['ジンジャー','カシス'] }),
+  item({ name:'パローマ(塩リム)', base:'テキーラ', method:'ビルド', taste:'中口', abv:15, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'テキーラ',amount:30,unit:'ml'},{name:'グレフル',amount:90,unit:'ml'},{name:'ソーダ',amount:60,unit:'ml'},{name:'塩(リム)',amount:null,unit:''}], juices:['グレフル'], tags:['グレフル','塩リム','ソーダ'] }),
+  item({ name:'マルガリータ(塩リム)', base:'テキーラ', method:'シェイク', taste:'辛口', abv:30, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'テキーラ',amount:30,unit:'ml'},{name:'コアントロー',amount:15,unit:'ml'},{name:'レモン',amount:15,unit:'ml'},{name:'シロップ(好み)',amount:1,unit:'tsp',optional:true},{name:'塩(リム)',amount:null,unit:''}], tags:['塩リム','コアントロー'] }),
+  item({ name:'ブルーマルガリータ(塩リム)', base:'テキーラ', method:'シェイク', taste:'辛口', abv:30, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'テキーラ',amount:30,unit:'ml'},{name:'ブルーキュラソー',amount:15,unit:'ml'},{name:'レモン',amount:15,unit:'ml'}], tags:['塩リム','ブルー'] }),
+  item({ name:'ストロベリーマルガリータ(塩リム)', base:'テキーラ', method:'シェイク', taste:'中口', abv:20, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'テキーラ',amount:30,unit:'ml'},{name:'コアントロー',amount:15,unit:'ml'},{name:'ライム',amount:20,unit:'ml'},{name:'ストロベリー',amount:30,unit:'ml'},{name:'シロップ(好み)',amount:2,unit:'tsp',optional:true}], tags:['ストロベリー'] }),
+  item({ name:'マタドール', base:'テキーラ', method:'シェイク', taste:'中口', abv:13, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'テキーラ',amount:30,unit:'ml'},{name:'パイン',amount:45,unit:'ml'},{name:'ライム',amount:15,unit:'ml'},{name:'シロップ',amount:2,unit:'tsp'}], juices:['パイン'], tags:['パイン'] }),
+  item({ name:'アイスブレーカー', base:'テキーラ', method:'シェイク', taste:'中口', abv:15, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'テキーラ',amount:30,unit:'ml'},{name:'コアントロー',amount:15,unit:'ml'},{name:'グレフル',amount:40,unit:'ml'},{name:'グレナデンシロップ',amount:5,unit:'ml'}], juices:['グレフル'], tags:['グレフル'] }),
+
+  // ── ウォッカベース ──
+  item({ name:'モスコミュール', base:'ウォッカ', method:'ビルド', taste:'中口', abv:15, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ウォッカ',amount:45,unit:'ml'},{name:'ジンジャー',amount:90,unit:'ml'},{name:'ライム',amount:15,unit:'ml'},{name:'シロップ(好み)',amount:1,unit:'tsp',optional:true}], tags:['ジンジャー','ライム'] }),
+  item({ name:'スクリュードライバー', base:'ウォッカ', method:'ビルド', taste:'甘口', abv:15, carbonated:false, style:'ロング', priceYen:350,
+    ingredients:[{name:'ウォッカ',amount:30,unit:'ml'},{name:'オレンジ',amount:'Full',unit:''}], juices:['オレンジ'], tags:['オレンジ'] }),
+  item({ name:'ソルティドック(塩リム)', base:'ウォッカ', method:'ビルド', taste:'中口', abv:15, carbonated:false, style:'ロング', priceYen:350,
+    ingredients:[{name:'ウォッカ',amount:45,unit:'ml'},{name:'グレフル',amount:'Full',unit:''},{name:'シロップ(好み)',amount:1,unit:'tsp',optional:true},{name:'塩(リム)',amount:null,unit:''}], juices:['グレフル'], tags:['塩リム','グレフル'] }),
+  item({ name:'シーブリーズ', base:'ウォッカ', method:'ビルド', taste:'甘口', abv:15, carbonated:false, style:'ロング', priceYen:350,
+    ingredients:[{name:'ウォッカ',amount:45,unit:'ml'},{name:'クランベリー',amount:90,unit:'ml'},{name:'グレフル',amount:30,unit:'ml'}], juices:['クランベリー','グレフル'], tags:['クランベリー'] }),
+  item({ name:'カミカゼ', base:'ウォッカ', method:'シェイク', taste:'中口', abv:20, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'ウォッカ',amount:30,unit:'ml'},{name:'コアントロー',amount:30,unit:'ml'},{name:'ライム',amount:30,unit:'ml'}], tags:['ライム','コアントロー'] }),
+  item({ name:'コスモポリタン', base:'ウォッカ', method:'シェイク', taste:'中口', abv:15, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'ウォッカ',amount:45,unit:'ml'},{name:'コアントロー',amount:30,unit:'ml'},{name:'クランベリー',amount:30,unit:'ml'},{name:'ライム',amount:15,unit:'ml'}], juices:['クランベリー'], tags:['クランベリー'] }),
+  item({ name:'ブルーラグーン', base:'ウォッカ', method:'シェイク', taste:'中口', abv:28, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'ウォッカ',amount:30,unit:'ml'},{name:'ブルーキュラソー',amount:20,unit:'ml'},{name:'レモン',amount:20,unit:'ml'}], tags:['ブルー','レモン'] }),
+
+  // ── ジンベース ──
+  item({ name:'ジントニック', base:'ジン', method:'ビルド', taste:'辛口', abv:15, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ジン',amount:30,unit:'ml'},{name:'トニック',amount:'Full',unit:''}], tags:['トニック'] }),
+  item({ name:'ジンソニック', base:'ジン', method:'ビルド', taste:'辛口', abv:15, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ジン',amount:30,unit:'ml'},{name:'トニック',amount:50,unit:'ml'},{name:'ソーダ',amount:50,unit:'ml'}], tags:['トニック','ソーダ'] }),
+  item({ name:'ジンバック', base:'ジン', method:'ビルド', taste:'中口', abv:15, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ジン',amount:30,unit:'ml'},{name:'レモン',amount:10,unit:'ml'},{name:'ジンジャー',amount:'Full',unit:''}], tags:['ジンジャー','レモン'] }),
+  item({ name:'オレンジブロッサム', base:'ジン', method:'ビルド', taste:'甘口', abv:15, carbonated:false, style:'ロング', priceYen:350,
+    ingredients:[{name:'ジン',amount:45,unit:'ml'},{name:'オレンジ',amount:'Full',unit:''}], juices:['オレンジ'], tags:['オレンジ'] }),
+  item({ name:'トムコリンズ', base:'ジン', method:'ビルド', taste:'甘口', abv:15, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ジン',amount:45,unit:'ml'},{name:'レモン',amount:15,unit:'ml'},{name:'シロップ',amount:10,unit:'ml'},{name:'ソーダ',amount:'Full',unit:''}], tags:['ソーダ','レモン'] }),
+  item({ name:'ホワイトレディ', base:'ジン', method:'シェイク', taste:'中口', abv:25, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'ジン',amount:30,unit:'ml'},{name:'コアントロー',amount:15,unit:'ml'},{name:'レモン',amount:15,unit:'ml'}], tags:['コアントロー','レモン'] }),
+  item({ name:'ギムレット', base:'ジン', method:'シェイク', taste:'甘口', abv:25, carbonated:false, style:'ショート', priceYen:300,
+    ingredients:[{name:'ジン',amount:30,unit:'ml'},{name:'ライム',amount:15,unit:'ml'},{name:'シロップ',amount:10,unit:'ml'}], tags:['ライム'] }),
+
+  // ── カシスベース ──
+  item({ name:'カシスオレンジ', base:'カシス', method:'ビルド', taste:'甘口', abv:10, carbonated:false, style:'ロング', priceYen:350,
+    ingredients:[{name:'カシス',amount:30,unit:'ml'},{name:'オレンジ',amount:90,unit:'ml'}], juices:['オレンジ'], tags:['オレンジ'] }),
+  item({ name:'カシスグレープフルーツ', base:'カシス', method:'ビルド', taste:'甘口', abv:10, carbonated:false, style:'ロング', priceYen:350,
+    ingredients:[{name:'カシス',amount:30,unit:'ml'},{name:'グレフル',amount:90,unit:'ml'}], juices:['グレフル'], tags:['グレフル'] }),
+  item({ name:'カシスソーダ', base:'カシス', method:'ビルド', taste:'甘口', abv:10, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'カシス',amount:30,unit:'ml'},{name:'ソーダ',amount:90,unit:'ml'}], tags:['ソーダ'] }),
+
+  // ── ウィスキーベース ──
+  item({ name:'ピーチハイボール', base:'ウィスキー', method:'ビルド', taste:'甘口', abv:null, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ウィスキー',amount:30,unit:'ml'},{name:'ピーチ',amount:15,unit:'ml'},{name:'ソーダ',amount:'Full',unit:''}], tags:['ピーチ','ハイボール'] }),
+
+  // ── 複数ベース ──
+  item({ name:'ロングアイランドアイスティー', base:'複数', method:'ビルド', taste:'甘口', abv:25, carbonated:true, style:'ロング', priceYen:350,
+    ingredients:[{name:'ラム',amount:15,unit:'ml'},{name:'ジン',amount:15,unit:'ml'},{name:'テキーラ',amount:15,unit:'ml'},{name:'ウォッカ',amount:15,unit:'ml'},{name:'コアントロー',amount:15,unit:'ml'},{name:'レモン',amount:'1~2',unit:'tsp'},{name:'コーラ',amount:'Full',unit:''}], tags:['コーラ'] }),
+
+  // ── ノンアル ──
+  item({ name:'サンシャインスプラッシュ', base:'ノンアル', method:'ビルド', taste:'甘口', abv:0, carbonated:true, style:'ロング', priceYen:200,
+    ingredients:[{name:'オレンジ',amount:60,unit:'ml'},{name:'グレフル',amount:60,unit:'ml'},{name:'炭酸水',amount:60,unit:'ml'},{name:'レモン',amount:10,unit:'ml'}], juices:['オレンジ','グレフル'], tags:['ノンアル'] }),
+];
+
+// ─── フィルター状態 ─────────────────────────────────────────────────────────
+
+const BASES = ['ラム','テキーラ','ウォッカ','ジン','ウィスキー','カシス','複数','ノンアル'];
+const state = {
+  bases: new Set(),
+  carbonated: false, noncarbonated: false,
+  short: false, long: false,
+  sweet: false, medium: false, dry: false,
+  q: '', sort: 'name',
+};
+
+function initFilters() {
+  const bWrap = document.getElementById('bases');
+  BASES.forEach(b => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chip';
+    btn.textContent = b;
+    btn.onclick = () => {
+      if (state.bases.has(b)) { state.bases.delete(b); btn.classList.remove('on'); }
+      else { state.bases.add(b); btn.classList.add('on'); }
+      render();
+    };
+    bWrap.appendChild(btn);
+  });
+  const bind = (id, key) => document.getElementById(id).addEventListener('change', e => { state[key] = e.target.checked; render(); });
+  bind('f-carbonated','carbonated'); bind('f-noncarbonated','noncarbonated');
+  bind('f-short','short'); bind('f-long','long');
+  bind('f-sweet','sweet'); bind('f-medium','medium'); bind('f-dry','dry');
+  document.getElementById('search').addEventListener('input', e => { state.q = e.target.value.trim(); render(); });
+  document.getElementById('sort').addEventListener('change', e => { state.sort = e.target.value; render(); });
+}
+
+function filtered() {
+  return MENU.filter(m => {
+    if (state.carbonated && !m.carbonated) return false;
+    if (state.noncarbonated && m.carbonated) return false;
+    if (state.short && m.style !== 'ショート') return false;
+    if (state.long  && m.style !== 'ロング')  return false;
+    if (state.sweet || state.medium || state.dry) {
+      if (state.sweet && m.taste === '甘口') {}
+      else if (state.medium && m.taste === '中口') {}
+      else if (state.dry && m.taste === '辛口') {}
+      else return false;
+    }
+    if (state.bases.size && !state.bases.has(m.base)) return false;
+    if (state.q) {
+      const q = state.q.toLowerCase();
+      const hay = [m.name, m.base, m.taste, m.style, ...(m.tags||[]), ...(m.ingredients||[]).map(i=>i.name)].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }).sort((a,b) => {
+    if (state.sort === 'name')     return a.name.localeCompare(b.name,'ja');
+    if (state.sort === 'price')    return (a.priceYen||0) - (b.priceYen||0);
+    if (state.sort === 'abv-asc')  return (a.abv??0) - (b.abv??0);
+    if (state.sort === 'abv-desc') return (b.abv??0) - (a.abv??0);
+    return 0;
+  });
+}
+
+// ─── レンダリング ────────────────────────────────────────────────────────────
+
+function makeTags(m) {
+  const parts = [];
+  parts.push(`<span class="tag tag-base">${esc(m.base)}</span>`);
+  parts.push(`<span class="tag tag-method">${esc(m.method)}</span>`);
+  parts.push(`<span class="tag tag-${m.style === 'ショート' ? 'short' : 'long'}">${esc(m.style)}</span>`);
+  const tasteMap = {'甘口':'sweet','中口':'med','辛口':'dry'};
+  parts.push(`<span class="tag tag-${tasteMap[m.taste]||'med'}">${esc(m.taste)}</span>`);
+  if (m.carbonated) parts.push(`<span class="tag tag-soda">炭酸</span>`);
+  if (m.abv != null) parts.push(`<span class="tag tag-abv">${m.abv}°</span>`);
+  if (m.base === 'ノンアル') parts.push(`<span class="tag tag-noalc">ノンアル</span>`);
+  return parts.join('');
+}
+
+const io = new IntersectionObserver(entries => entries.forEach(e => {
+  if (e.isIntersecting) { const fn = e.target.__loadImg; if(fn){fn(); e.target.__loadImg=null;} io.unobserve(e.target); }
+}), {rootMargin:'300px'});
+
+const imgCache = {};
+async function fetchWikiImage(name) {
+  if (name in imgCache) return imgCache[name];
+  const queries = [name, name + ' (cocktail)'];
+  const langs = ['ja','en'];
+  for (const lang of langs) {
+    for (const q of queries) {
+      try {
+        const url = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(q)}&prop=pageimages|info&piprop=thumbnail&pithumbsize=640&format=json&inprop=url&origin=*`;
+        const res = await fetch(url, {signal: AbortSignal.timeout(6000)});
+        if (!res.ok) continue;
+        const data = await res.json();
+        for (const p of Object.values(data.query?.pages ?? {})) {
+          if (p.thumbnail?.source) {
+            const r = {url: p.thumbnail.source, page: p.fullurl};
+            imgCache[name] = r; return r;
+          }
+        }
+      } catch {}
+    }
+  }
+  imgCache[name] = null; return null;
+}
+
+const tpl = document.getElementById('card-tpl');
+
+function render() {
+  const list  = document.getElementById('list');
+  const items = filtered();
+  document.getElementById('resCount').textContent = `${items.length} 件`;
+  list.innerHTML = '';
+
+  if (!items.length) {
+    list.innerHTML = '<div class="empty"><span class="empty-icon">🍹</span>条件に合うカクテルが見つかりません</div>';
+    return;
+  }
+
+  items.forEach(m => {
+    const node = tpl.content.cloneNode(true);
+    node.querySelector('.card-name').textContent = m.name;
+    node.querySelector('.card-price').textContent = m.priceYen ? `¥${m.priceYen}` : '';
+    node.querySelector('.tags').innerHTML = makeTags(m);
+
+    const ingsHtml = '<strong>材料</strong>: ' + (m.ingredients||[]).map(i =>
+      `<span class="${i.optional ? 'opt-ing' : ''}">${esc(i.name)}${i.amount != null ? ` ${i.amount}${i.unit||''}` : ''}${i.optional ? '(任意)' : ''}</span>`
+    ).join('、 ');
+    node.querySelector('.card-ings').innerHTML = ingsHtml;
+
+    const card   = node.querySelector('.card');
+    const imgDiv = node.querySelector('.thumb-img');
+    const phDiv  = node.querySelector('.thumb-ph');
+    const srcLnk = node.querySelector('.src-link');
+
+    card.__loadImg = async () => {
+      const info = await fetchWikiImage(m.name);
+      if (info?.url) {
+        const img = new Image();
+        img.onload = () => { imgDiv.style.backgroundImage = `url(${info.url})`; imgDiv.classList.add('loaded'); phDiv.style.display='none'; };
+        img.src = info.url;
+        if (info.page) { srcLnk.href = info.page; srcLnk.style.display = 'inline'; }
+      } else {
+        phDiv.classList.add('noimg');
+      }
+    };
+    io.observe(card);
+
+    node.querySelector('.btn-order').addEventListener('click', () => openOrder(m));
+    node.querySelector('.btn-copy').addEventListener('click', () => {
+      const text = `${m.name}\n${m.base} / ${m.style} / ${m.taste} / ${m.method}${m.abv != null ? ` / ${m.abv}°` : ''}\n${(m.ingredients||[]).map(i=>`${i.name} ${i.amount??''}${i.unit||''}`).join(', ')}`;
+      navigator.clipboard.writeText(text).then(() => showToast('コピーしました'));
+    });
+
+    list.appendChild(node);
+  });
+}
+
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ─── 注文 ───────────────────────────────────────────────────────────────────
+
+let currentCocktail = null;
+function openOrder(m) {
+  currentCocktail = m;
+  document.getElementById('oName').textContent = m.name;
+  document.getElementById('oPrice').textContent = m.priceYen ? `¥${m.priceYen}` : '';
+  document.getElementById('oPersonName').value = localStorage.getItem('barName') || '';
+  document.getElementById('oNote').value = '';
+  document.getElementById('orderModal').classList.add('open');
+  setTimeout(() => document.getElementById('oPersonName').focus(), 80);
+}
+function closeOrder() {
+  document.getElementById('orderModal').classList.remove('open');
+  currentCocktail = null;
+}
+async function submitOrder() {
+  if (!currentCocktail) return;
+  const name = document.getElementById('oPersonName').value.trim();
+  if (!name) { document.getElementById('oPersonName').focus(); return; }
+  const note = document.getElementById('oNote').value.trim();
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true; btn.textContent = '送信中…';
+  try {
+    const res = await fetch(`${BAR_API}/order`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({name, cocktail: currentCocktail.name, note}),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    localStorage.setItem('barName', name);
+    closeOrder();
+    showToast(`✓ 「${currentCocktail.name}」を注文しました！`);
+  } catch (e) {
+    showToast(`エラー: ${e.message}`, true);
+  } finally {
+    btn.disabled = false; btn.textContent = '注文する';
+  }
+}
+
+// ─── Toast ──────────────────────────────────────────────────────────────────
+
+let toastTimer;
+function showToast(msg, err=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (err ? ' err' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOrder(); });
+
+// ─── 初期化 ─────────────────────────────────────────────────────────────────
+initFilters();
+render();
+</script>
+</body>
+</html>

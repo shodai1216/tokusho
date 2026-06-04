@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>バーテンダー管理 — Tokusho</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-bg:      #070d14;
+      --c-surface: #0d1a26;
+      --c-surf2:   #0f2035;
+      --c-border:  rgba(34,211,238,0.10);
+      --c-primary: #22d3ee;
+      --c-sec:     #0891b2;
+      --c-text:    #e2f0f5;
+      --c-muted:   #5d8a9a;
+      --c-accent:  #67e8f9;
+      --c-ok:      #34d399;
+      --c-bad:     #f87171;
+      --c-warn:    #fbbf24;
+      --c-gold:    #f59e0b;
+      --r-card:    16px;
+      --shadow:    0 4px 32px rgba(0,0,0,0.4);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans JP', -apple-system, sans-serif; background: var(--c-bg); min-height: 100vh; color: var(--c-text); }
+
+    .hero { background: linear-gradient(125deg,#040b12 0%,#071929 52%,#0a2438 100%); border-bottom: 1px solid var(--c-border); }
+    .hero-inner { max-width: 1080px; margin: 0 auto; padding: 0 20px; height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand-icon { width: 34px; height: 34px; border-radius: 9px; background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.25); display: flex; align-items: center; justify-content: center; font-size: 17px; }
+    .brand-name { font-family: 'Outfit',sans-serif; font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -.02em; }
+    .brand-name em { color: var(--c-gold); font-style: normal; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .menu-link { font-family: 'Outfit',sans-serif; font-size: 12px; font-weight: 700; color: var(--c-muted); border: 1px solid var(--c-border); border-radius: 8px; padding: 5px 12px; text-decoration: none; transition: all .15s; }
+    .menu-link:hover { color: var(--c-primary); border-color: rgba(34,211,238,.3); }
+    .clock { font-family: 'DM Mono',monospace; font-size: 12px; color: var(--c-muted); }
+
+    .main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 18px; }
+
+    .card { background: var(--c-surface); border-radius: var(--r-card); box-shadow: var(--shadow); border: 1px solid var(--c-border); padding: 22px; }
+    .sec-label { font-family: 'Outfit',sans-serif; font-size: 10px; font-weight: 700; color: var(--c-primary); letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: 7px; margin-bottom: 16px; }
+    .sec-label::before { content:''; width:3px; height:13px; background: linear-gradient(180deg,var(--c-accent),var(--c-sec)); border-radius: 2px; }
+    .sec-label .reload { margin-left: auto; font: inherit; font-size: 11px; text-transform: none; letter-spacing: 0; color: var(--c-primary); background: rgba(34,211,238,.06); border: 1px solid var(--c-border); border-radius: 8px; padding: 4px 12px; cursor: pointer; }
+    .sec-label .reload:hover { background: rgba(34,211,238,.14); }
+
+    /* Stats row */
+    .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+    .stat { background: var(--c-surf2); border: 1px solid var(--c-border); border-radius: 12px; padding: 12px 18px; min-width: 100px; }
+    .stat-label { font-size: 10px; color: var(--c-muted); font-weight: 700; letter-spacing: .07em; text-transform: uppercase; font-family: 'Outfit',sans-serif; }
+    .stat-value { font-family: 'Outfit',sans-serif; font-size: 22px; font-weight: 800; margin-top: 3px; }
+    .stat-value.pending { color: var(--c-warn); }
+    .stat-value.making  { color: var(--c-primary); }
+    .stat-value.done    { color: var(--c-ok); }
+
+    /* Filter tabs */
+    .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .tab { font-family: 'Outfit',sans-serif; font-size: 12px; font-weight: 700; padding: 5px 14px; border-radius: 20px; border: 1px solid var(--c-border); background: rgba(34,211,238,.04); color: var(--c-muted); cursor: pointer; transition: all .15s; }
+    .tab:hover { color: var(--c-text); }
+    .tab.on { background: rgba(34,211,238,.12); border-color: rgba(34,211,238,.4); color: var(--c-primary); }
+
+    /* Order list */
+    .order-list { display: flex; flex-direction: column; gap: 10px; }
+    .order-item { display: flex; gap: 14px; align-items: flex-start; background: var(--c-surf2); border: 1px solid var(--c-border); border-radius: 12px; padding: 14px 16px; transition: border-color .2s; }
+    .order-item.new-flash { border-color: rgba(245,158,11,.5); animation: flash .6s ease-out; }
+    @keyframes flash { 0%{background:rgba(245,158,11,.15)} 100%{background:var(--c-surf2)} }
+    .order-num { font-family: 'DM Mono',monospace; font-size: 11px; color: var(--c-muted); flex-shrink: 0; padding-top: 3px; }
+    .order-body { flex: 1; min-width: 0; }
+    .order-cocktail { font-family: 'Outfit',sans-serif; font-size: 16px; font-weight: 800; color: var(--c-text); }
+    .order-who { font-size: 12px; color: var(--c-muted); margin-top: 2px; }
+    .order-who .name { color: var(--c-accent); font-weight: 700; }
+    .order-note { font-size: 12px; color: var(--c-muted); margin-top: 4px; padding: 4px 8px; background: rgba(255,255,255,.03); border-radius: 6px; border-left: 2px solid var(--c-border); }
+    .order-time { font-family: 'DM Mono',monospace; font-size: 10px; color: var(--c-muted); margin-top: 6px; }
+    .order-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+    .badge { display: inline-flex; align-items: center; gap: 5px; border-radius: 7px; padding: 3px 10px; font-size: 11px; font-weight: 700; font-family: 'Outfit',sans-serif; }
+    .badge.pending   { background: rgba(251,191,36,.1); color: var(--c-warn); border: 1px solid rgba(251,191,36,.25); }
+    .badge.making    { background: rgba(34,211,238,.1); color: var(--c-primary); border: 1px solid rgba(34,211,238,.25); }
+    .badge.done      { background: rgba(52,211,153,.1); color: var(--c-ok); border: 1px solid rgba(52,211,153,.25); }
+    .badge.cancelled { background: rgba(255,255,255,.04); color: var(--c-muted); border: 1px solid rgba(255,255,255,.1); }
+    .action-btns { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn-action { padding: 5px 11px; border-radius: 7px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .15s; font-family: 'Outfit','Noto Sans JP',sans-serif; }
+    .btn-making { border: 1px solid rgba(34,211,238,.25); background: rgba(34,211,238,.06); color: var(--c-primary); }
+    .btn-making:hover { background: rgba(34,211,238,.15); }
+    .btn-done { border: 1px solid rgba(52,211,153,.25); background: rgba(52,211,153,.06); color: var(--c-ok); }
+    .btn-done:hover { background: rgba(52,211,153,.15); }
+    .btn-cancel { border: 1px solid rgba(248,113,113,.2); background: rgba(248,113,113,.05); color: var(--c-bad); }
+    .btn-cancel:hover { background: rgba(248,113,113,.14); }
+    .btn-action:disabled { opacity: .4; cursor: default; }
+    .empty-msg { text-align: center; padding: 40px 20px; color: var(--c-muted); font-size: 14px; }
+    .muted { color: var(--c-muted); font-size: 12px; }
+    .err { color: var(--c-bad); font-size: 13px; }
+
+    /* Toast */
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--c-surface); border: 1px solid rgba(52,211,153,.3); border-radius: 12px; padding: 11px 20px; font-size: 13px; font-weight: 700; color: var(--c-ok); box-shadow: var(--shadow); z-index: 200; transition: transform .3s cubic-bezier(.34,1.56,.64,1); pointer-events: none; white-space: nowrap; }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.err  { border-color: rgba(248,113,113,.3); color: var(--c-bad); }
+
+    /* New order notification banner */
+    #newBanner { display: none; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.35); border-radius: 12px; padding: 12px 18px; font-size: 14px; font-weight: 700; color: var(--c-gold); text-align: center; cursor: pointer; }
+    #newBanner.show { display: block; }
+
+    .footer-note { text-align: center; font-size: 11px; color: var(--c-muted); opacity: .55; }
+  </style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <a class="brand" href="/bar/admin.html">
+      <div class="brand-icon">🍸</div>
+      <div class="brand-name">おうちバー <em>管理</em></div>
+    </a>
+    <div class="header-right">
+      <a class="menu-link" href="/bar/">← メニューへ</a>
+      <div class="clock" id="clock">—</div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div id="newBanner" onclick="loadOrders()">🍹 新しい注文があります！タップして更新</div>
+
+  <div class="card">
+    <div class="sec-label">
+      注文管理
+      <button class="reload" onclick="loadOrders()">更新</button>
+    </div>
+
+    <div class="stats" id="stats">
+      <div class="stat"><div class="stat-label">待機中</div><div class="stat-value pending" id="cnt-pending">—</div></div>
+      <div class="stat"><div class="stat-label">作成中</div><div class="stat-value making" id="cnt-making">—</div></div>
+      <div class="stat"><div class="stat-label">完成</div><div class="stat-value done" id="cnt-done">—</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab on" data-filter="active" onclick="setFilter('active',this)">未完了</button>
+      <button class="tab" data-filter="pending" onclick="setFilter('pending',this)">待機中</button>
+      <button class="tab" data-filter="making"  onclick="setFilter('making',this)">作成中</button>
+      <button class="tab" data-filter="done"    onclick="setFilter('done',this)">完成済み</button>
+      <button class="tab" data-filter="all"     onclick="setFilter('all',this)">全件</button>
+    </div>
+
+    <div class="order-list" id="orderList"><p class="muted">読み込み中…</p></div>
+  </div>
+
+  <div class="footer-note">おうちバー バーテンダー管理画面</div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+const BAR_API = '/api';
+
+let allOrders  = [];
+let currentFilter = 'active';
+let prevIds   = new Set();
+let pollTimer = null;
+
+// ─── API ─────────────────────────────────────────────────────────────────────
+
+async function apiGet(path) {
+  const res = await fetch(BAR_API + path, {cache:'no-store'});
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+async function apiPost(path, body) {
+  const res = await fetch(BAR_API + path, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+// ─── 注文読み込み ─────────────────────────────────────────────────────────────
+
+async function loadOrders() {
+  document.getElementById('newBanner').classList.remove('show');
+  try {
+    const data = await apiGet('/orders');
+    const orders = data.orders || [];
+    const newIds = new Set(orders.map(o => o.id));
+    const hasNew = prevIds.size > 0 && [...newIds].some(id => !prevIds.has(id));
+    prevIds = newIds;
+    allOrders = orders;
+    updateStats(orders);
+    renderOrders(orders, hasNew);
+    if (hasNew) { playChime(); showToast('🍹 新しい注文が来ました！'); }
+  } catch (e) {
+    document.getElementById('orderList').innerHTML = `<p class="err">取得失敗: ${esc(e.message)}</p>`;
+  }
+}
+
+function updateStats(orders) {
+  document.getElementById('cnt-pending').textContent = orders.filter(o=>o.status==='pending').length;
+  document.getElementById('cnt-making').textContent  = orders.filter(o=>o.status==='making').length;
+  document.getElementById('cnt-done').textContent    = orders.filter(o=>o.status==='done').length;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  renderOrders(allOrders, false);
+}
+
+function visibleOrders(orders) {
+  if (currentFilter === 'active') return orders.filter(o => o.status === 'pending' || o.status === 'making');
+  if (currentFilter === 'all')    return orders;
+  return orders.filter(o => o.status === currentFilter);
+}
+
+function renderOrders(orders, flashNew) {
+  const list = document.getElementById('orderList');
+  const visible = visibleOrders(orders);
+  if (!visible.length) {
+    list.innerHTML = '<div class="empty-msg">注文はありません</div>';
+    return;
+  }
+  list.innerHTML = '';
+  visible.forEach(o => {
+    const isNew = flashNew && !prevIds.has(o.id - 1);
+    const el = document.createElement('div');
+    el.className = 'order-item' + (isNew ? ' new-flash' : '');
+    el.id = `order-${o.id}`;
+
+    const statusLabel = {pending:'待機中', making:'作成中', done:'完成', cancelled:'キャンセル'}[o.status] || o.status;
+    const actionBtns = buildActionBtns(o);
+
+    el.innerHTML = `
+      <span class="order-num">#${o.id}</span>
+      <div class="order-body">
+        <div class="order-cocktail">${esc(o.cocktail)}</div>
+        <div class="order-who"><span class="name">${esc(o.name)}</span></div>
+        ${o.note ? `<div class="order-note">${esc(o.note)}</div>` : ''}
+        <div class="order-time">${esc(o.created_at)}</div>
+      </div>
+      <div class="order-right">
+        <span class="badge ${o.status}">${statusLabel}</span>
+        <div class="action-btns">${actionBtns}</div>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+
+function buildActionBtns(o) {
+  if (o.status === 'pending') return `
+    <button class="btn-action btn-making" onclick="updateStatus(${o.id},'making')">作成中</button>
+    <button class="btn-action btn-cancel" onclick="updateStatus(${o.id},'cancelled')">✕</button>`;
+  if (o.status === 'making') return `
+    <button class="btn-action btn-done"   onclick="updateStatus(${o.id},'done')">完成</button>
+    <button class="btn-action btn-cancel" onclick="updateStatus(${o.id},'cancelled')">✕</button>`;
+  return '';
+}
+
+async function updateStatus(id, status) {
+  const btns = document.querySelectorAll(`#order-${id} .btn-action`);
+  btns.forEach(b => b.disabled = true);
+  try {
+    await apiPost(`/orders/${id}/status`, {status});
+    await loadOrders();
+  } catch (e) {
+    showToast(`更新失敗: ${e.message}`, true);
+    btns.forEach(b => b.disabled = false);
+  }
+}
+
+// ─── ポーリング ───────────────────────────────────────────────────────────────
+
+function startPolling() {
+  pollTimer = setInterval(async () => {
+    try {
+      const data = await apiGet('/orders');
+      const orders = data.orders || [];
+      const newIds = new Set(orders.map(o => o.id));
+      const hasNew = prevIds.size > 0 && [...newIds].some(id => !prevIds.has(id));
+      if (hasNew) {
+        document.getElementById('newBanner').classList.add('show');
+        playChime();
+      }
+      prevIds = newIds;
+      allOrders = orders;
+      updateStats(orders);
+      renderOrders(orders, hasNew);
+      if (hasNew) showToast('🍹 新しい注文が来ました！');
+    } catch {}
+  }, 12000);
+}
+
+function playChime() {
+  try {
+    const ctx = new AudioContext();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.3, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    o.start(); o.stop(ctx.currentTime + 0.5);
+  } catch {}
+}
+
+// ─── ユーティリティ ───────────────────────────────────────────────────────────
+
+function esc(s) { return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+let toastTimer;
+function showToast(msg, err=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (err ? ' err' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function tickClock() { document.getElementById('clock').textContent = new Date().toLocaleString('ja-JP'); }
+
+// ─── 初期化 ──────────────────────────────────────────────────────────────────
+
+loadOrders();
+startPolling();
+tickClock();
+setInterval(tickClock, 1000);
+</script>
+</body>
+</html>
